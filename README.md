@@ -1,3 +1,2 @@
-# aplikasi_kasir
+# Aplikasi Kasir 
 
-A new Flutter project.
