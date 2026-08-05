@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/database/app_database.dart';
-
+import 'product_image_widget.dart';
 import '../utils/currency_formatter.dart';
 
 class InventoryItemCard extends StatelessWidget {
@@ -30,11 +30,12 @@ class InventoryItemCard extends StatelessWidget {
             // Area Gambar
             Expanded(
               flex: 3,
-              child: Container(
+              child: ProductImageWidget(
+                imagePath: barang.gambarPath,
+                namaBarang: barang.nama,
                 width: double.infinity,
-                color: Colors.grey.shade100,
-                child: const Icon(Icons.image_outlined,
-                    size: 40, color: Colors.grey),
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
             // Area Teks Detail

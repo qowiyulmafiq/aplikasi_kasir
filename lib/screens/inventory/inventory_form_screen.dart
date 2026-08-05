@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:drift/drift.dart' hide Column; // Needed for Value()
 import '../../providers/inventory_provider.dart';
 import '../../data/database/app_database.dart';
 import '../../utils/dialog_helper.dart';
+import '../../utils/image_picker_helper.dart';
+import '../../widgets/product_image_widget.dart';
 
 class InventoryFormScreen extends ConsumerStatefulWidget {
   final BarangData? barangToEdit;
@@ -31,6 +34,8 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     'Lainnya'
   ];
 
+  String? _gambarPath;
+
   bool get isEditMode => widget.barangToEdit != null;
 
   @override
@@ -39,10 +44,20 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     if (isEditMode) {
       _namaController.text = widget.barangToEdit!.nama;
       _hargaController.text = widget.barangToEdit!.harga.toString();
+      _gambarPath = widget.barangToEdit!.gambarPath;
 
       if (_kategoriOptions.contains(widget.barangToEdit!.kategori)) {
         _selectedKategori = widget.barangToEdit!.kategori;
       }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final newPath = await ImagePickerHelper.pickAndSaveImage();
+    if (newPath != null) {
+      setState(() {
+        _gambarPath = newPath;
+      });
     }
   }
 
@@ -59,11 +74,12 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
           int.parse(_hargaController.text.replaceAll(RegExp(r'[^0-9]'), ''));
 
       if (isEditMode) {
-        // Mode Edit: Tanpa memproses gambar
+        // Mode Edit
         final barangDiupdate = widget.barangToEdit!.copyWith(
           nama: _namaController.text,
           harga: inputHarga,
           kategori: _selectedKategori,
+          gambarPath: _gambarPath != null ? Value(_gambarPath) : const Value.absent(),
         );
         ref.read(inventoryProvider.notifier).updateBarang(barangDiupdate);
 
@@ -73,11 +89,12 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
               backgroundColor: Colors.blue),
         );
       } else {
-        // Mode Tambah: Gunakan BarangCompanion (tanpa 's')
+        // Mode Tambah
         final barangBaru = BarangCompanion.insert(
           nama: _namaController.text,
           kategori: _selectedKategori,
           harga: inputHarga,
+          gambarPath: _gambarPath != null ? Value(_gambarPath!) : const Value.absent(),
         );
         ref.read(inventoryProvider.notifier).addBarang(barangBaru);
 
@@ -125,6 +142,36 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20.0),
           children: [
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade400, width: 1),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _gambarPath != null
+                      ? ProductImageWidget(
+                          imagePath: _gambarPath,
+                          namaBarang: _namaController.text.isNotEmpty ? _namaController.text : '?',
+                          fit: BoxFit.cover,
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 40, color: Colors.grey.shade600),
+                            const SizedBox(height: 8),
+                            Text('Tambah Foto', style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             TextFormField(
               controller: _namaController,
               decoration: const InputDecoration(
@@ -132,6 +179,10 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
               validator: (value) => (value == null || value.trim().isEmpty)
                   ? 'Nama tidak boleh kosong'
                   : null,
+              onChanged: (val) {
+                // Trigger rebuild jika menggunakan fallback image inisial
+                if (_gambarPath == null) setState(() {});
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(

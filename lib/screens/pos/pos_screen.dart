@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../utils/currency_formatter.dart';
+import '../../widgets/product_image_widget.dart';
 import 'widgets/cart_bottom_sheet.dart';
 
 class PosScreen extends ConsumerWidget {
@@ -183,14 +184,12 @@ class PosScreen extends ConsumerWidget {
                               children: [
                                 Expanded(
                                   flex: 3,
-                                  child: Container(
+                                  child: ProductImageWidget(
+                                    imagePath: barang.gambarPath,
+                                    namaBarang: barang.nama,
                                     width: double.infinity,
-                                    color: Colors.grey.shade100,
-                                    child: const Icon(
-                                      Icons.image_outlined,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    ),
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                                 Expanded(
