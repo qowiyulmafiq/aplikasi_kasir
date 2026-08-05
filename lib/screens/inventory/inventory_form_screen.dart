@@ -79,7 +79,7 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
           nama: _namaController.text,
           harga: inputHarga,
           kategori: _selectedKategori,
-          gambarPath: _gambarPath != null ? Value(_gambarPath) : const Value.absent(),
+          gambarPath: Value(_gambarPath),
         );
         ref.read(inventoryProvider.notifier).updateBarang(barangDiupdate);
 
@@ -94,7 +94,7 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
           nama: _namaController.text,
           kategori: _selectedKategori,
           harga: inputHarga,
-          gambarPath: _gambarPath != null ? Value(_gambarPath!) : const Value.absent(),
+          gambarPath: Value(_gambarPath),
         );
         ref.read(inventoryProvider.notifier).addBarang(barangBaru);
 
@@ -143,32 +143,61 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
           padding: const EdgeInsets.all(20.0),
           children: [
             Center(
-              child: GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade400, width: 1),
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade400, width: 1),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: _gambarPath != null
+                          ? ProductImageWidget(
+                              imagePath: _gambarPath,
+                              namaBarang: _namaController.text.isNotEmpty ? _namaController.text : '?',
+                              fit: BoxFit.cover,
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_a_photo, size: 40, color: Colors.grey.shade600),
+                                const SizedBox(height: 8),
+                                Text('Tambah Foto', style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                              ],
+                            ),
+                    ),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: _gambarPath != null
-                      ? ProductImageWidget(
-                          imagePath: _gambarPath,
-                          namaBarang: _namaController.text.isNotEmpty ? _namaController.text : '?',
-                          fit: BoxFit.cover,
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_a_photo, size: 40, color: Colors.grey.shade600),
-                            const SizedBox(height: 8),
-                            Text('Tambah Foto', style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
-                          ],
+                  if (_gambarPath != null)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _gambarPath = null;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.white,
+                          ),
                         ),
-                ),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
