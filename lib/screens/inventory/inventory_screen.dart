@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../providers/inventory_provider.dart';
 import '../../widgets/inventory_item_card.dart';
@@ -34,11 +35,33 @@ class InventoryScreen extends ConsumerWidget {
         ),
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/inventory/add');
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        spacing: 12,
+        spaceBetweenChildren: 8,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.edit),
+            label: 'Tambah Manual',
+            onTap: () {
+              context.push('/inventory/add');
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.file_upload_outlined),
+            label: 'Import Excel',
+            onTap: () {
+              // Dummy logic sementara, nanti akan diganti dengan file_picker & excel parsing
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Fitur Import Excel akan segera diimplementasikan!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
