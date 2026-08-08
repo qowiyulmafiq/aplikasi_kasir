@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../providers/inventory_provider.dart';
+import '../../services/excel_import_service.dart';
 import '../../widgets/inventory_item_card.dart';
 
 class InventoryScreen extends ConsumerWidget {
@@ -51,15 +52,7 @@ class InventoryScreen extends ConsumerWidget {
           SpeedDialChild(
             child: const Icon(Icons.file_upload_outlined),
             label: 'Import Excel',
-            onTap: () {
-              // Dummy logic sementara, nanti akan diganti dengan file_picker & excel parsing
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur Import Excel akan segera diimplementasikan!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
+            onTap: () => _handleImportExcel(context, ref),
           ),
         ],
       ),
@@ -181,5 +174,105 @@ class InventoryScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleImportExcel(BuildContext context, WidgetRef ref) async {
+    // Langsung buka Intent File Picker sistem tanpa membuka dialog Flutter terlebih dahulu
+    // untuk mencegah konflik overlay Activity di Android (layar hitam).
+    final result = await ExcelImportService.pickAndParseExcel();
+
+    if (!context.mounted) return;
+
+    if (result.error != null) {
+      if (result.error != 'Pemilihan file dibatalkan.') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.error!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Dialog Konfirmasi sebelum Batch Insert
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.file_upload, color: Colors.green),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Konfirmasi Impor',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ditemukan ${result.sukses} barang valid dari file Excel.',
+              style: const TextStyle(fontSize: 16),
+            ),
+            if (result.dilewati > 0) ...[
+              const SizedBox(height: 6),
+              Text(
+                '${result.dilewati} baris dilewati (kosong / header / data tidak valid).',
+                style: TextStyle(color: Colors.orange.shade800, fontSize: 13),
+              ),
+            ],
+            const SizedBox(height: 16),
+            const Text(
+              'Apakah Anda yakin ingin menambahkan data ini ke inventaris?',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Impor Sekarang'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      try {
+        await ref.read(inventoryProvider.notifier).batchAddBarang(result.items);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Berhasil mengimpor ${result.sukses} barang ke inventaris!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menyimpan data ke database: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }

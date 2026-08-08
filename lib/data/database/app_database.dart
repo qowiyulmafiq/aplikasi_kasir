@@ -52,6 +52,13 @@ class AppDatabase extends _$AppDatabase {
     return into(barang).insert(barangCompanion);
   }
 
+  // Menambah banyak barang sekaligus (Batch Insert secara atomis)
+  Future<void> batchInsertBarang(List<BarangCompanion> items) async {
+    await batch((b) {
+      b.insertAll(barang, items);
+    });
+  }
+
   // Mengubah data barang
   Future<bool> updateBarang(BarangData barangData) {
     return update(barang).replace(barangData);
