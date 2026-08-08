@@ -21,6 +21,12 @@ class Inventory extends _$Inventory {
     await db.insertBarang(barang);
   }
 
+  // Fungsi untuk menambah banyak barang sekaligus dari Excel
+  Future<void> batchAddBarang(List<BarangCompanion> listBarang) async {
+    final db = ref.read(appDatabaseProvider);
+    await db.batchInsertBarang(listBarang);
+  }
+
   // Fungsi untuk mengedit barang
   Future<void> updateBarang(BarangData barang) async {
     final db = ref.read(appDatabaseProvider);
