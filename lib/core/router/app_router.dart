@@ -7,6 +7,7 @@ import '../../data/database/app_database.dart';
 import '../../screens/pos/pos_screen.dart';
 import '../../screens/history/history_screen.dart';
 import '../../screens/profile/profile_screen.dart';
+import '../../screens/profile/store_settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -53,6 +54,11 @@ final GoRouter appRouter = GoRouter(
         final barang = state.extra as BarangData;
         return InventoryFormScreen(barangToEdit: barang);
       },
+    ),
+    GoRoute(
+      path: '/profile/store-settings',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const StoreSettingsScreen(),
     ),
   ],
 );

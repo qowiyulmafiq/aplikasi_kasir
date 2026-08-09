@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -36,7 +37,9 @@ class ProfileScreen extends StatelessWidget {
                   context,
                   icon: Icons.store_mall_directory_outlined,
                   title: 'Toko & Struk',
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/profile/store-settings');
+                  },
                 ),
                 _buildGridItem(
                   context,
