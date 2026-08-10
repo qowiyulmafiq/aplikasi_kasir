@@ -57,7 +57,9 @@ class ProfileScreen extends StatelessWidget {
                   context,
                   icon: Icons.admin_panel_settings_outlined,
                   title: 'Sistem & Tampilan',
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/profile/system-settings');
+                  },
                 ),
               ],
             ),

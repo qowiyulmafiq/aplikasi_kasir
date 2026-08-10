@@ -7,7 +7,8 @@ class StoreSettingsScreen extends ConsumerStatefulWidget {
   const StoreSettingsScreen({super.key});
 
   @override
-  ConsumerState<StoreSettingsScreen> createState() => _StoreSettingsScreenState();
+  ConsumerState<StoreSettingsScreen> createState() =>
+      _StoreSettingsScreenState();
 }
 
 class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
@@ -24,7 +25,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
     _alamatController = TextEditingController();
     _teleponController = TextEditingController();
     _footerController = TextEditingController();
-    
+
     // Memberikan delay sedikit agar provider selesai inisialisasi dari shared_prefs
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final settings = ref.read(storeSettingsNotifierProvider);
@@ -81,54 +82,65 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                   const SizedBox(height: 16),
                   _buildTextField('Nama Toko', _namaController, Icons.store),
                   const SizedBox(height: 12),
-                  _buildTextField('Alamat', _alamatController, Icons.location_on),
+                  _buildTextField(
+                      'Alamat', _alamatController, Icons.location_on),
                   const SizedBox(height: 12),
-                  _buildTextField('No. Telepon / WA', _teleponController, Icons.phone),
-                  
+                  _buildTextField(
+                      'No. Telepon / WA', _teleponController, Icons.phone),
+
                   const Divider(height: 48),
-                  
+
                   const Text(
                     'Pengaturan Struk',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  _buildTextField('Pesan Footer Struk', _footerController, Icons.text_snippet),
+                  _buildTextField('Pesan Footer Struk', _footerController,
+                      Icons.text_snippet),
                   const SizedBox(height: 16),
-                  
+
                   // Dropdown Ukuran Kertas
                   Row(
                     children: [
                       const Icon(Icons.print, color: Colors.grey),
                       const SizedBox(width: 16),
-                      const Text('Ukuran Kertas: ', style: TextStyle(fontSize: 16)),
+                      const Text('Ukuran Kertas: ',
+                          style: TextStyle(fontSize: 16)),
                       const SizedBox(width: 16),
                       DropdownButton<String>(
                         value: settings.ukuranKertas,
                         items: const [
-                          DropdownMenuItem(value: '58mm', child: Text('58mm (Kecil)')),
-                          DropdownMenuItem(value: '80mm', child: Text('80mm (Besar)')),
+                          DropdownMenuItem(
+                              value: '58mm', child: Text('58mm (Kecil)')),
+                          DropdownMenuItem(
+                              value: '80mm', child: Text('80mm (Besar)')),
                         ],
                         onChanged: (val) {
                           if (val != null) {
-                            ref.read(storeSettingsNotifierProvider.notifier).updateSettings(ukuranKertas: val);
+                            ref
+                                .read(storeSettingsNotifierProvider.notifier)
+                                .updateSettings(ukuranKertas: val);
                           }
                         },
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Switch Nama Kasir
                   SwitchListTile(
                     title: const Text('Tampilkan Nama Kasir'),
-                    subtitle: const Text('Mencetak nama kasir di bagian atas struk'),
+                    subtitle:
+                        const Text('Mencetak nama kasir di bagian atas struk'),
                     value: settings.tampilkanNamaKasir,
                     onChanged: (val) {
-                      ref.read(storeSettingsNotifierProvider.notifier).updateSettings(tampilkanNamaKasir: val);
+                      ref
+                          .read(storeSettingsNotifierProvider.notifier)
+                          .updateSettings(tampilkanNamaKasir: val);
                     },
                     contentPadding: EdgeInsets.zero,
                   ),
-                  
+
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -136,7 +148,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pengaturan berhasil disimpan!'), backgroundColor: Colors.green),
+                          const SnackBar(
+                              content: Text('Pengaturan berhasil disimpan!'),
+                              backgroundColor: Colors.green),
                         );
                       },
                       icon: const Icon(Icons.save),
@@ -147,7 +161,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               ),
             ),
           ),
-          
+
           // KANAN: Live Preview Struk
           if (isDesktop)
             Expanded(
@@ -161,9 +175,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
             ),
         ],
       ),
-      // Jika Mobile, preview bisa pakai FloatingActionButton atau BottomSheet, 
+      // Jika Mobile, preview bisa pakai FloatingActionButton atau BottomSheet,
       // tapi untuk kesederhanaan kita tampilkan di paling bawah scroll jika tidak desktop
-      bottomNavigationBar: !isDesktop 
+      bottomNavigationBar: !isDesktop
           ? Container(
               padding: const EdgeInsets.all(16),
               color: Colors.grey[100],
@@ -176,8 +190,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     builder: (context) => Container(
                       height: MediaQuery.of(context).size.height * 0.7,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFEEEEEE), // Warna abu-abu background struk
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        color:
+                            Color(0xFFEEEEEE), // Warna abu-abu background struk
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20)),
                       ),
                       child: Column(
                         children: [
@@ -224,7 +240,8 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, IconData icon) {
+  Widget _buildTextField(
+      String label, TextEditingController controller, IconData icon) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -249,7 +266,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5))
         ],
       ),
       child: SingleChildScrollView(
@@ -260,38 +280,42 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
             // LOGO PLACEHOLDER
             Icon(Icons.storefront, size: 48, color: Colors.grey[800]),
             const SizedBox(height: 8),
-            
+
             // NAMA TOKO
             Text(
-              settings.namaToko.isEmpty ? 'NAMA TOKO' : settings.namaToko.toUpperCase(),
+              settings.namaToko.isEmpty
+                  ? 'NAMA TOKO'
+                  : settings.namaToko.toUpperCase(),
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 4),
-            
+
             // ALAMAT
             Text(
               settings.alamat.isEmpty ? 'Alamat Toko' : settings.alamat,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12),
             ),
-            
+
             // TELEPON
             Text(
               settings.telepon.isEmpty ? '-' : settings.telepon,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12),
             ),
-            
+
             const SizedBox(height: 12),
-            const Text('----------------------------------------', maxLines: 1, overflow: TextOverflow.clip),
+            const Text('----------------------------------------',
+                maxLines: 1, overflow: TextOverflow.clip),
             const SizedBox(height: 4),
-            
+
             // INFO TRANSAKSI
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(dateFormat.format(now), style: const TextStyle(fontSize: 10)),
+                Text(dateFormat.format(now),
+                    style: const TextStyle(fontSize: 10)),
                 Text('#TRX-0001', style: const TextStyle(fontSize: 10)),
               ],
             ),
@@ -300,25 +324,31 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text('Kasir: Admin', style: TextStyle(fontSize: 10)),
               ),
-              
+
             const SizedBox(height: 4),
-            const Text('----------------------------------------', maxLines: 1, overflow: TextOverflow.clip),
+            const Text('----------------------------------------',
+                maxLines: 1, overflow: TextOverflow.clip),
             const SizedBox(height: 8),
-            
+
             // ITEM DUMMY
             _buildReceiptItem('Kopi Susu Gula Aren', '2 x 15.000', '30.000'),
             _buildReceiptItem('Roti Bakar Coklat', '1 x 12.000', '12.000'),
-            
+
             const SizedBox(height: 8),
-            const Text('----------------------------------------', maxLines: 1, overflow: TextOverflow.clip),
+            const Text('----------------------------------------',
+                maxLines: 1, overflow: TextOverflow.clip),
             const SizedBox(height: 8),
-            
+
             // TOTAL DUMMY
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                Text('Rp 42.000', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('TOTAL',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('Rp 42.000',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ],
             ),
             const Row(
@@ -335,12 +365,14 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                 Text('Rp 8.000', style: TextStyle(fontSize: 12)),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // FOOTER
             Text(
-              settings.pesanFooter.isEmpty ? 'Terima Kasih' : settings.pesanFooter,
+              settings.pesanFooter.isEmpty
+                  ? 'Terima Kasih'
+                  : settings.pesanFooter,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
             ),
@@ -357,7 +389,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(name,
+              style:
+                  const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
