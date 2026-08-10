@@ -69,7 +69,7 @@ class SystemSettingsScreen extends ConsumerWidget {
           ),
 
           // TAMPILAN POS
-          _buildSectionHeader('Tampilan Katalog Kasir'),
+          _buildSectionHeader('Tampilan Katalog'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape:
@@ -140,8 +140,11 @@ class SystemSettingsScreen extends ConsumerWidget {
               children: [
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(Icons.cloud_upload, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(Icons.cloud_upload,
+                        color:
+                            Theme.of(context).colorScheme.onPrimaryContainer),
                   ),
                   title: const Text('Backup Database'),
                   subtitle: const Text('Simpan data transaksi & barang'),
@@ -156,8 +159,11 @@ class SystemSettingsScreen extends ConsumerWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                    child: Icon(Icons.restore, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
+                    child: Icon(Icons.restore,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer),
                   ),
                   title: const Text('Pulihkan Data (Restore)'),
                   subtitle: const Text('Kembalikan dari file backup'),
@@ -172,8 +178,10 @@ class SystemSettingsScreen extends ConsumerWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                    child: Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.onErrorContainer),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.errorContainer,
+                    child: Icon(Icons.delete_sweep,
+                        color: Theme.of(context).colorScheme.onErrorContainer),
                   ),
                   title: const Text('Bersihkan Cache'),
                   subtitle: const Text('Hapus file sementara aplikasi'),

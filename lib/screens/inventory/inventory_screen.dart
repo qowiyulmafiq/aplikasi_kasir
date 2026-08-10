@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../providers/inventory_provider.dart';
+import '../../providers/system_settings_provider.dart';
 import '../../services/excel_import_service.dart';
 import '../../widgets/inventory_item_card.dart';
 
@@ -17,6 +18,7 @@ class InventoryScreen extends ConsumerWidget {
     // Membaca status pencarian dan kategori saat ini khusus Inventaris
     final searchQuery = ref.watch(inventorySearchQueryProvider);
     final selectedCategory = ref.watch(inventorySelectedCategoryProvider);
+    final systemSettings = ref.watch(systemSettingsNotifierProvider);
 
     // Daftar kategori untuk Filter Chips
     final List<String> kategoriOptions = [
@@ -148,20 +150,41 @@ class InventoryScreen extends ConsumerWidget {
                   );
                 }
 
-                // Tampilan jika data tersedia
+                if (systemSettings.posLayoutMode == 'list') {
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: daftarBarang.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final barang = daftarBarang[index];
+                      return InventoryItemCard(
+                        barang: barang,
+                        isGridMode: false,
+                        showImage: systemSettings.showItemImage,
+                        onTap: () {
+                          context.push('/inventory/edit', extra: barang);
+                        },
+                      );
+                    },
+                  );
+                }
+
+                // Tampilan jika data tersedia (Grid)
                 return GridView.builder(
                   padding: const EdgeInsets.all(16.0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.75,
+                    childAspectRatio: systemSettings.showItemImage ? 0.75 : 1.4,
                   ),
                   itemCount: daftarBarang.length,
                   itemBuilder: (context, index) {
                     final barang = daftarBarang[index];
                     return InventoryItemCard(
                       barang: barang,
+                      isGridMode: true,
+                      showImage: systemSettings.showItemImage,
                       onTap: () {
                         context.push('/inventory/edit', extra: barang);
                       },

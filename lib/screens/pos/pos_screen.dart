@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/inventory_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/system_settings_provider.dart';
 import '../../utils/currency_formatter.dart';
 import '../../widgets/product_image_widget.dart';
 import 'widgets/cart_bottom_sheet.dart';
@@ -24,6 +25,8 @@ class PosScreen extends ConsumerWidget {
     final inventoryState = ref.watch(filteredPosCatalogProvider);
     final searchQuery = ref.watch(posSearchQueryProvider);
     final selectedCategory = ref.watch(posSelectedCategoryProvider);
+
+    final systemSettings = ref.watch(systemSettingsNotifierProvider);
 
     final cart = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
@@ -145,13 +148,132 @@ class PosScreen extends ConsumerWidget {
                   );
                 }
 
+                if (systemSettings.posLayoutMode == 'list') {
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: daftarBarang.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final barang = daftarBarang[index];
+                      final cartItemIndex = cart.indexWhere((item) => item.barang.id == barang.id);
+                      final quantityInCart = cartItemIndex >= 0 ? cart[cartItemIndex].kuantitas : 0;
+
+                      return Card(
+                        elevation: 1,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: quantityInCart > 0
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey.shade200,
+                            width: quantityInCart > 0 ? 2 : 1,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            cartNotifier.addItem(barang);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                if (systemSettings.showItemImage)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: ProductImageWidget(
+                                        imagePath: barang.gambarPath,
+                                        namaBarang: barang.nama,
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                if (systemSettings.showItemImage)
+                                  const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        barang.nama,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        barang.kategori,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      CurrencyFormatter.formatRupiah(barang.harga),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 13,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (quantityInCart > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          '$quantityInCart',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Icon(
+                                        Icons.add_shopping_cart,
+                                        size: 18,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+
+                // Default Grid Mode
                 return GridView.builder(
                   padding: const EdgeInsets.all(16.0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.8,
+                    childAspectRatio: systemSettings.showItemImage ? 0.8 : 1.4,
                   ),
                   itemCount: daftarBarang.length,
                   itemBuilder: (context, index) {
@@ -182,18 +304,19 @@ class PosScreen extends ConsumerWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: ProductImageWidget(
-                                    imagePath: barang.gambarPath,
-                                    namaBarang: barang.nama,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
+                                if (systemSettings.showItemImage)
+                                  Expanded(
+                                    flex: 3,
+                                    child: ProductImageWidget(
+                                      imagePath: barang.gambarPath,
+                                      namaBarang: barang.nama,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
                                 Expanded(
-                                  flex: 2,
+                                  flex: systemSettings.showItemImage ? 2 : 5,
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
