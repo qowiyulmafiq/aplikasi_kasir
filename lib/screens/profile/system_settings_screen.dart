@@ -32,9 +32,9 @@ class SystemSettingsScreen extends ConsumerWidget {
                   const Text('Mode Gelap / Terang',
                       style: TextStyle(fontSize: 16)),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Pilih mode tampilan aplikasi. (Penerapan warna global akan diimplementasikan pada versi mendatang).',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  Text(
+                    'Pilih tema tampilan aplikasi yang nyaman untuk mata Anda.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -81,15 +81,15 @@ class SystemSettingsScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Gaya Tata Letak',
+                          const Text('Gaya Tata Letak',
                               style: TextStyle(fontSize: 16)),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text('Ubah cara barang ditampilkan',
                               style:
-                                  TextStyle(fontSize: 12, color: Colors.grey)),
+                                  TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ],
                       ),
                       SegmentedButton<String>(
@@ -117,9 +117,9 @@ class SystemSettingsScreen extends ConsumerWidget {
                 SwitchListTile(
                   title: const Text('Tampilkan Gambar Barang',
                       style: TextStyle(fontSize: 16)),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Matikan untuk mempercepat kinerja pada perangkat lawas',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   value: settings.showItemImage,
                   onChanged: (bool value) {

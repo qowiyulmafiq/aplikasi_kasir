@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,18 @@ class SystemSettings {
     this.posLayoutMode = 'grid',
     this.showItemImage = true,
   });
+
+  ThemeMode get flutterThemeMode {
+    switch (themeMode) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+      default:
+        return ThemeMode.system;
+    }
+  }
 
   SystemSettings copyWith({
     String? themeMode,

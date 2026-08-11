@@ -167,7 +167,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.grey[100],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: Center(
                   child: _buildReceiptPreview(settings),
                 ),
@@ -180,7 +180,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
       bottomNavigationBar: !isDesktop
           ? Container(
               padding: const EdgeInsets.all(16),
-              color: Colors.grey[100],
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: ElevatedButton.icon(
                 onPressed: () {
                   showModalBottomSheet(
@@ -189,9 +189,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     backgroundColor: Colors.transparent,
                     builder: (context) => Container(
                       height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color:
-                            Color(0xFFEEEEEE), // Warna abu-abu background struk
+                            Theme.of(context).colorScheme.surfaceContainerHighest, // Warna abu-abu background struk
                         borderRadius:
                             BorderRadius.vertical(top: Radius.circular(20)),
                       ),
@@ -203,7 +203,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                             width: 40,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade400,
+                              color: Theme.of(context).colorScheme.outlineVariant,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -272,8 +272,12 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               offset: const Offset(0, 5))
         ],
       ),
-      child: SingleChildScrollView(
-        child: Column(
+      child: Theme(
+        data: ThemeData.light(),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(color: Colors.black),
+          child: SingleChildScrollView(
+            child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -379,7 +383,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
+      ))),
     );
   }
 

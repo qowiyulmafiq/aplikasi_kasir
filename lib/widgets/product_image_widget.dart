@@ -35,10 +35,10 @@ class ProductImageWidget extends StatelessWidget {
         height: height,
         fit: fit,
         cacheWidth: 300, // Membatasi ukuran decode RAM agar tidak berat
-        errorBuilder: (context, error, stackTrace) => _buildFallback(),
+        errorBuilder: (context, error, stackTrace) => _buildFallback(context),
       );
     } else {
-      imageContent = _buildFallback();
+      imageContent = _buildFallback(context);
     }
 
     if (borderRadius > 0) {
@@ -51,16 +51,16 @@ class ProductImageWidget extends StatelessWidget {
     return imageContent;
   }
 
-  Widget _buildFallback() {
+  Widget _buildFallback(BuildContext context) {
     return Container(
       width: width,
       height: height,
-      color: Colors.grey.shade100,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       child: Icon(
         Icons.image_outlined,
         size: 36,
-        color: Colors.grey.shade400,
+        color: Theme.of(context).colorScheme.outlineVariant,
       ),
     );
   }

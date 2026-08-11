@@ -38,9 +38,9 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
     final bool isKurang = _metodePembayaran == MetodePembayaran.tunai && _bayarController.text.isNotEmpty && kembalian < 0;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: EdgeInsets.only(
         top: 16,
@@ -57,7 +57,7 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -128,11 +128,11 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                 child: Column(
                   children: [
                     Icon(Icons.remove_shopping_cart_outlined,
-                        size: 60, color: Colors.grey.shade300),
+                        size: 60, color: Theme.of(context).colorScheme.outlineVariant),
                     const SizedBox(height: 12),
                     Text(
                       'Keranjang masih kosong',
-                      style: TextStyle(color: Colors.grey.shade600),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -169,7 +169,7 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                   CurrencyFormatter.formatRupiah(item.barang.harga),
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -181,8 +181,8 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                           // Kontrol Kuantitas (- / +) Pill
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              border: Border.all(color: Colors.grey.shade300),
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -292,9 +292,9 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                     });
                   },
                   style: SegmentedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade50,
-                    selectedForegroundColor: Colors.white,
-                    selectedBackgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
+                    selectedBackgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -316,7 +316,7 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -341,7 +341,7 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                       borderSide: BorderSide(
                         color: isKurang
                             ? Colors.red
-                            : Theme.of(context).primaryColor,
+                            : Theme.of(context).colorScheme.primary,
                         width: 2,
                       ),
                     ),
@@ -404,11 +404,14 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isKurang ? Colors.red.shade50 : Colors.green.shade50,
+                      color: isKurang
+                          ? Theme.of(context).colorScheme.errorContainer
+                          : Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color:
-                            isKurang ? Colors.red.shade200 : Colors.green.shade200,
+                        color: isKurang
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     child: Row(
@@ -420,8 +423,8 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: isKurang
-                                ? Colors.red.shade800
-                                : Colors.green.shade800,
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : Theme.of(context).colorScheme.onPrimaryContainer,
                           ),
                         ),
                         Text(
@@ -430,8 +433,8 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
                             color: isKurang
-                                ? Colors.red.shade800
-                                : Colors.green.shade800,
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : Theme.of(context).colorScheme.onPrimaryContainer,
                           ),
                         ),
                       ],
@@ -446,24 +449,24 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.shade200),
+                    border: Border.all(color: Theme.of(context).colorScheme.primary),
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.qr_code_scanner, size: 40, color: Colors.blue.shade700),
+                      Icon(Icons.qr_code_scanner, size: 40, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Arahkan pelanggan untuk men-scan QRIS pada meja kasir.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                        style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Pastikan uang senilai ${CurrencyFormatter.formatRupiah(grandTotal)} masuk sebelum menekan tombol Selesai.',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                       ),
                     ],
                   ),
@@ -588,7 +591,7 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                               color:
-                                                  Theme.of(context).primaryColor,
+                                                  Theme.of(context).colorScheme.primary,
                                             ),
                                           ),
                                         ],
@@ -601,9 +604,9 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                     onPressed: () {
                                       Navigator.pop(ctx);
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Fitur cetak struk segera hadir!'),
-                                          backgroundColor: Colors.blue,
+                                        SnackBar(
+                                          content: const Text('Fitur cetak struk segera hadir!'),
+                                          backgroundColor: Theme.of(context).colorScheme.primary,
                                         ),
                                       );
                                     },
@@ -613,8 +616,8 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                     onPressed: () => Navigator.pop(ctx),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      foregroundColor: Colors.white,
+                                          Theme.of(context).colorScheme.primary,
+                                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                     ),
                                     child: const Text('Selesai'),
                                   ),
@@ -624,8 +627,8 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

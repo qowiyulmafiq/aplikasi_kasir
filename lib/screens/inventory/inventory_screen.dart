@@ -66,9 +66,9 @@ class InventoryScreen extends ConsumerWidget {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: SearchBar(
               hintText: 'Cari nama barang...',
-              leading: const Icon(Icons.search, color: Colors.grey),
+              leading: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
               elevation: const WidgetStatePropertyAll(0), // Flat design
-              backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+              backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainerHighest),
               padding: const WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 16.0)),
               onChanged: (value) {
@@ -101,11 +101,11 @@ class InventoryScreen extends ConsumerWidget {
                       }
                     },
                     selectedColor:
-                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     labelStyle: TextStyle(
                       color: selectedCategory == kategori
-                          ? Theme.of(context).primaryColor
-                          : Colors.black87,
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : Theme.of(context).colorScheme.onSurface,
                       fontWeight: selectedCategory == kategori
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -137,13 +137,13 @@ class InventoryScreen extends ConsumerWidget {
                                 ? Icons.search_off
                                 : Icons.inventory_2_outlined,
                             size: 80,
-                            color: Colors.grey.shade300),
+                            color: Theme.of(context).colorScheme.outlineVariant),
                         const SizedBox(height: 16),
                         Text(
                           searchQuery.isNotEmpty || selectedCategory != 'Semua'
                               ? 'Barang tidak ditemukan.'
                               : 'Belum ada barang di inventaris.',
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),

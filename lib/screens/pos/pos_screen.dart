@@ -68,9 +68,9 @@ class PosScreen extends ConsumerWidget {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: SearchBar(
               hintText: 'Cari produk kasir...',
-              leading: const Icon(Icons.search, color: Colors.grey),
+              leading: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
               elevation: const WidgetStatePropertyAll(0),
-              backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+              backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainerHighest),
               padding: const WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 16.0)),
               onChanged: (value) {
@@ -100,11 +100,11 @@ class PosScreen extends ConsumerWidget {
                       }
                     },
                     selectedColor:
-                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     labelStyle: TextStyle(
                       color: selectedCategory == kategori
-                          ? Theme.of(context).primaryColor
-                          : Colors.black87,
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : Theme.of(context).colorScheme.onSurface,
                       fontWeight: selectedCategory == kategori
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -134,14 +134,14 @@ class PosScreen extends ConsumerWidget {
                               ? Icons.search_off
                               : Icons.inventory_2_outlined,
                           size: 80,
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).colorScheme.outlineVariant,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           searchQuery.isNotEmpty || selectedCategory != 'Semua'
                               ? 'Produk tidak ditemukan.'
                               : 'Belum ada produk di katalog.',
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -165,8 +165,8 @@ class PosScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
                             color: quantityInCart > 0
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey.shade200,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
                             width: quantityInCart > 0 ? 2 : 1,
                           ),
                         ),
@@ -213,7 +213,7 @@ class PosScreen extends ConsumerWidget {
                                         barang.kategori,
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.grey.shade600,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -229,7 +229,7 @@ class PosScreen extends ConsumerWidget {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 13,
-                                        color: Theme.of(context).primaryColor,
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -237,7 +237,7 @@ class PosScreen extends ConsumerWidget {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).primaryColor,
+                                          color: Theme.of(context).colorScheme.primary,
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         child: Text(
@@ -253,7 +253,7 @@ class PosScreen extends ConsumerWidget {
                                       Icon(
                                         Icons.add_shopping_cart,
                                         size: 18,
-                                        color: Theme.of(context).primaryColor,
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                   ],
                                 ),
@@ -290,8 +290,8 @@ class PosScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
                           color: quantityInCart > 0
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey.shade200,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
                           width: quantityInCart > 0 ? 2 : 1,
                         ),
                       ),
@@ -338,7 +338,7 @@ class PosScreen extends ConsumerWidget {
                                           barang.kategori,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.grey.shade600,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -354,15 +354,13 @@ class PosScreen extends ConsumerWidget {
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w900,
                                                 fontSize: 13,
-                                                color: Theme.of(context)
-                                                    .primaryColor,
+                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
                                             Icon(
                                               Icons.add_shopping_cart,
                                               size: 18,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
+                                              color: Theme.of(context).colorScheme.primary,
                                             ),
                                           ],
                                         ),
@@ -380,7 +378,7 @@ class PosScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -408,10 +406,10 @@ class PosScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),
@@ -430,7 +428,7 @@ class PosScreen extends ConsumerWidget {
                             '$totalItemsInCart Item di Keranjang',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           Text(
@@ -439,7 +437,7 @@ class PosScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
-                              color: Theme.of(context).primaryColor,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ],
@@ -448,8 +446,8 @@ class PosScreen extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () => _showCartBottomSheet(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
