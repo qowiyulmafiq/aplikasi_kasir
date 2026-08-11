@@ -70,7 +70,7 @@ class HistoryScreen extends ConsumerWidget {
   Widget _buildSummaryHeader(BuildContext context, int revenue, int count, String omzetLabel) {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
       child: Row(
         children: [
           Expanded(
@@ -203,8 +203,8 @@ class HistoryScreen extends ConsumerWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-          child: Icon(Icons.receipt, color: Theme.of(context).primaryColor),
+          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          child: Icon(Icons.receipt, color: Theme.of(context).colorScheme.primary),
         ),
         title: Text(
           '#TRX-${trx.id.toString().padLeft(4, '0')}',
@@ -389,7 +389,7 @@ class HistoryScreen extends ConsumerWidget {
               ),
               Text(
                 CurrencyFormatter.formatRupiah(trx.totalHarga),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
               ),
             ],
           ),

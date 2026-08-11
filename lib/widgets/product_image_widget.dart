@@ -23,12 +23,9 @@ class ProductImageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasImage = imagePath != null && imagePath!.isNotEmpty;
     
-    // Mengecek apakah file benar-benar ada di perangkat
-    final bool fileExists = hasImage && File(imagePath!).existsSync();
-
     Widget imageContent;
 
-    if (fileExists) {
+    if (hasImage) {
       imageContent = Image.file(
         File(imagePath!),
         width: width,
