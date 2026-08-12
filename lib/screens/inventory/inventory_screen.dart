@@ -176,7 +176,7 @@ class InventoryScreen extends ConsumerWidget {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: systemSettings.showItemImage ? 0.75 : 1.4,
+                    childAspectRatio: systemSettings.showItemImage ? 0.8 : 1.4,
                   ),
                   itemCount: daftarBarang.length,
                   itemBuilder: (context, index) {
