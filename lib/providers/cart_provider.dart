@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/database/app_database.dart';
 import 'database_provider.dart';
+import 'operational_settings_provider.dart';
 import 'package:drift/drift.dart';
 
 part 'cart_provider.g.dart';
@@ -31,9 +32,26 @@ class Cart extends _$Cart {
     return []; // Keranjang selalu kosong saat pertama kali dibuka
   }
 
-  // Mendapatkan grand total dari seluruh isi keranjang
-  int get grandTotal {
+  // Mendapatkan subtotal (sebelum pajak)
+  int get subtotal {
     return state.fold(0, (total, item) => total + item.subtotal);
+  }
+
+  // Menghitung nominal pajak berdasarkan Operasional Settings
+  int getTaxAmount(OperationalSettings settings) {
+    if (!settings.enableTax || settings.taxPercentage <= 0) return 0;
+    return (subtotal * (settings.taxPercentage / 100)).round();
+  }
+
+  // Mendapatkan grand total dengan memperhitungkan pajak jika aktif
+  int getGrandTotal(OperationalSettings settings) {
+    return subtotal + getTaxAmount(settings);
+  }
+
+  // Getter grandTotal bawaan (mengambil setting operasional aktif)
+  int get grandTotal {
+    final settings = ref.read(operationalSettingsNotifierProvider);
+    return getGrandTotal(settings);
   }
 
   // Menambahkan barang ke keranjang
@@ -85,9 +103,12 @@ class Cart extends _$Cart {
   }
 
   // Eksekusi penyimpanan ke database saat checkout
-  Future<void> checkout() async {
+  Future<void> checkout([OperationalSettings? settings]) async {
     if (state.isEmpty) return;
 
+    final OperationalSettings opSettings =
+        settings ?? ref.read(operationalSettingsNotifierProvider);
+    final totalTransaksi = getGrandTotal(opSettings);
     final db = ref.read(appDatabaseProvider);
 
     // Mapping format CartItem lokal kita menjadi format Drift DetailTransaksi
@@ -101,7 +122,7 @@ class Cart extends _$Cart {
     }).toList();
 
     // Panggil fungsi transaction yang sudah kita buat di AppDatabase
-    await db.simpanTransaksi(grandTotal, rincian);
+    await db.simpanTransaksi(totalTransaksi, rincian);
 
     // Kosongkan keranjang setelah transaksi berhasil disimpan
     clearCart();

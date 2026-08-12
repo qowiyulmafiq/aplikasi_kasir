@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/system_settings_provider.dart';
+import '../../providers/operational_settings_provider.dart';
+import '../../data/database/app_database.dart';
 import '../../utils/currency_formatter.dart';
 import '../../widgets/product_image_widget.dart';
 import 'widgets/cart_bottom_sheet.dart';
@@ -20,6 +22,11 @@ class PosScreen extends ConsumerWidget {
     );
   }
 
+  void _handleAddItem(BuildContext context, BarangData barang,
+      int quantityInCart, OperationalSettings opSettings, Cart cartNotifier) {
+    cartNotifier.addItem(barang);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final inventoryState = ref.watch(filteredPosCatalogProvider);
@@ -27,6 +34,7 @@ class PosScreen extends ConsumerWidget {
     final selectedCategory = ref.watch(posSelectedCategoryProvider);
 
     final systemSettings = ref.watch(systemSettingsNotifierProvider);
+    final opSettings = ref.watch(operationalSettingsNotifierProvider);
 
     final cart = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
@@ -172,7 +180,8 @@ class PosScreen extends ConsumerWidget {
                         ),
                         child: InkWell(
                           onTap: () {
-                            cartNotifier.addItem(barang);
+                            _handleAddItem(context, barang, quantityInCart,
+                                opSettings, cartNotifier);
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -297,7 +306,8 @@ class PosScreen extends ConsumerWidget {
                       ),
                       child: InkWell(
                         onTap: () {
-                          cartNotifier.addItem(barang);
+                          _handleAddItem(context, barang, quantityInCart,
+                              opSettings, cartNotifier);
                         },
                         child: Stack(
                           children: [
@@ -433,7 +443,7 @@ class PosScreen extends ConsumerWidget {
                           ),
                           Text(
                             CurrencyFormatter.formatRupiah(
-                                cartNotifier.grandTotal),
+                                cartNotifier.getGrandTotal(opSettings)),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,

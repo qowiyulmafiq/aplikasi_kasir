@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/system_settings_provider.dart';
+import '../../widgets/section_header.dart';
 
 class SystemSettingsScreen extends ConsumerWidget {
   const SystemSettingsScreen({super.key});
@@ -213,15 +214,6 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 12, top: 16),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+    return SectionHeader(title: title);
   }
 }

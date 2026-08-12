@@ -9,6 +9,7 @@ import '../../screens/history/history_screen.dart';
 import '../../screens/profile/profile_screen.dart';
 import '../../screens/profile/store_settings_screen.dart';
 import '../../screens/profile/system_settings_screen.dart';
+import '../../screens/profile/operational_settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -65,6 +66,11 @@ final GoRouter appRouter = GoRouter(
       path: '/profile/system-settings',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SystemSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/profile/operational-settings',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OperationalSettingsScreen(),
     ),
   ],
 );

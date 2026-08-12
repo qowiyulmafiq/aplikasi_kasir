@@ -51,7 +51,9 @@ class ProfileScreen extends StatelessWidget {
                   context,
                   icon: Icons.settings_applications_outlined,
                   title: 'Operasional',
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/profile/operational-settings');
+                  },
                 ),
                 _buildGridItem(
                   context,

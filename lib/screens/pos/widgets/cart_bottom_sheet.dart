@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/cart_provider.dart';
+import '../../../providers/operational_settings_provider.dart';
 import '../../../utils/currency_formatter.dart';
 import '../../../utils/dialog_helper.dart';
 
@@ -27,7 +28,11 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
   Widget build(BuildContext context) {
     final cart = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
-    final grandTotal = cartNotifier.grandTotal;
+    final opSettings = ref.watch(operationalSettingsNotifierProvider);
+
+    final subtotal = cartNotifier.subtotal;
+    final taxAmount = cartNotifier.getTaxAmount(opSettings);
+    final grandTotal = cartNotifier.getGrandTotal(opSettings);
 
     // Menghitung uang yang dimasukkan (jika QRIS, otomatis uang pas = grandTotal)
     final int uangDibayar = _metodePembayaran == MetodePembayaran.qris 
@@ -225,8 +230,9 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () =>
-                                      cartNotifier.addItem(item.barang),
+                                  onTap: () {
+                                    cartNotifier.addItem(item.barang);
+                                  },
                                   borderRadius: const BorderRadius.horizontal(
                                       right: Radius.circular(7)),
                                   child: Padding(
@@ -300,6 +306,50 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
               ),
               const SizedBox(height: 16),
 
+              if (opSettings.enableTax) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Subtotal',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      CurrencyFormatter.formatRupiah(subtotal),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Pajak (${opSettings.taxPercentage.toStringAsFixed(opSettings.taxPercentage.truncateToDouble() == opSettings.taxPercentage ? 0 : 1)}%)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      CurrencyFormatter.formatRupiah(taxAmount),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+              ],
               // Grand Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -510,10 +560,22 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                           final kembalianAkhir =
                               nominalBayarAkhir - grandTotal;
 
-                          await cartNotifier.checkout();
+                          await cartNotifier.checkout(opSettings);
 
                           if (context.mounted) {
                             Navigator.pop(context); // Tutup bottom sheet
+
+                            if (opSettings.autoPrintReceipt) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text(
+                                      'Mencetak struk transaksi secara otomatis...'),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
 
                             // Dialog Struk Konfirmasi Berhasil
                             showDialog(
@@ -553,6 +615,26 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                                         ),
                                       ],
                                     ),
+                                    if (opSettings.enableTax) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text('Subtotal:'),
+                                          Text(CurrencyFormatter.formatRupiah(subtotal)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Pajak (${opSettings.taxPercentage.toStringAsFixed(opSettings.taxPercentage.truncateToDouble() == opSettings.taxPercentage ? 0 : 1)}%):'),
+                                          Text(CurrencyFormatter.formatRupiah(taxAmount)),
+                                        ],
+                                      ),
+                                    ],
                                     const SizedBox(height: 4),
                                     Row(
                                       mainAxisAlignment:
