@@ -103,12 +103,21 @@ class InventoryItemCard extends ConsumerWidget {
             if (showImage)
               Expanded(
                 flex: 3,
-                child: ProductImageWidget(
-                  imagePath: barang.gambarPath,
-                  namaBarang: barang.nama,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    ProductImageWidget(
+                      imagePath: barang.gambarPath,
+                      namaBarang: barang.nama,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: _buildStockBadge(context, ref, barang),
+                    ),
+                  ],
                 ),
               ),
             Expanded(
@@ -132,12 +141,17 @@ class InventoryItemCard extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             barang.kategori,
-                            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        _buildStockBadge(context, ref, barang),
+                        if (!showImage)
+                          _buildStockBadge(context, ref, barang),
                       ],
                     ),
                     const Spacer(),
@@ -178,9 +192,15 @@ class InventoryItemCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 4,
+          ),
+        ],
       ),
       child: Text(
         text,
