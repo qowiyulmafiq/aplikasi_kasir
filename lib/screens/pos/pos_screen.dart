@@ -24,6 +24,19 @@ class PosScreen extends ConsumerWidget {
 
   void _handleAddItem(BuildContext context, BarangData barang,
       int quantityInCart, OperationalSettings opSettings, Cart cartNotifier) {
+    if (opSettings.enableStockManagement &&
+        !opSettings.allowZeroStockSales &&
+        (quantityInCart + 1) > barang.stok) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Stok "${barang.nama}" tidak mencukupi! (Sisa: ${barang.stok})'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     cartNotifier.addItem(barang);
   }
 

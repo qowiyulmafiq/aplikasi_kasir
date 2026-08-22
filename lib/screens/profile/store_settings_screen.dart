@@ -193,7 +193,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                         color:
                             Theme.of(context).colorScheme.surfaceContainerHighest, // Warna abu-abu background struk
                         borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
+                            const BorderRadius.vertical(top: Radius.circular(20)),
                       ),
                       child: Column(
                         children: [
@@ -320,7 +320,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               children: [
                 Text(dateFormat.format(now),
                     style: const TextStyle(fontSize: 10)),
-                Text('#TRX-0001', style: const TextStyle(fontSize: 10)),
+                const Text('#TRX-0001', style: TextStyle(fontSize: 10)),
               ],
             ),
             if (settings.tampilkanNamaKasir)

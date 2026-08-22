@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database/app_database.dart';
+import '../providers/operational_settings_provider.dart';
 import 'product_image_widget.dart';
 import '../utils/currency_formatter.dart';
 
-class InventoryItemCard extends StatelessWidget {
+class InventoryItemCard extends ConsumerWidget {
   final BarangData barang;
   final VoidCallback onTap;
   final bool isGridMode;
@@ -18,7 +20,7 @@ class InventoryItemCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (!isGridMode) {
       return Card(
         elevation: 1,
@@ -66,6 +68,8 @@ class InventoryItemCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 4),
+                      _buildStockBadge(context, ref, barang),
                     ],
                   ),
                 ),
@@ -122,12 +126,19 @@ class InventoryItemCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      barang.kategori,
-                      style:
-                          TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            barang.kategori,
+                            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        _buildStockBadge(context, ref, barang),
+                      ],
                     ),
                     const Spacer(),
                     Text(
@@ -144,6 +155,36 @@ class InventoryItemCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStockBadge(BuildContext context, WidgetRef ref, BarangData barang) {
+    final opSettings = ref.watch(operationalSettingsNotifierProvider);
+    if (!opSettings.enableStockManagement) {
+      return const SizedBox.shrink();
+    }
+
+    Color color = Colors.green.shade700;
+    String text = 'Stok: ${barang.stok}';
+    if (barang.stok <= 0) {
+      color = Colors.red.shade700;
+      text = 'Stok: 0';
+    } else if (barang.stok <= barang.stokMinimal) {
+      color = Colors.orange.shade800;
+      text = 'Stok: ${barang.stok}';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
       ),
     );
   }

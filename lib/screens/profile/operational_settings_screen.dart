@@ -158,27 +158,56 @@ class _OperationalSettingsScreenState
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(
-                  Icons.inventory_2_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: const Text(
-                  'Izinkan Penjualan Stok Kosong',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  'Memperbolehkan kasir memasukkan produk ke keranjang meskipun stoknya 0',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+              child: Column(
+                children: [
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    secondary: Icon(
+                      Icons.inventory_2_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text(
+                      'Aktifkan Pemantauan Stok Toko',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      'Otomatis menghitung sisa stok dan memotong stok saat transaksi',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    value: settings.enableStockManagement,
+                    onChanged: (val) {
+                      notifier.updateSettings(enableStockManagement: val);
+                    },
                   ),
-                ),
-                value: settings.allowZeroStockSales,
-                onChanged: (val) {
-                  notifier.updateSettings(allowZeroStockSales: val);
-                },
+                  if (settings.enableStockManagement) ...[
+                    const Divider(height: 16),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: Icon(
+                        Icons.add_shopping_cart,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: const Text(
+                        'Izinkan Penjualan Stok Kosong',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        'Memperbolehkan kasir memasukkan produk ke keranjang meskipun stoknya 0',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      value: settings.allowZeroStockSales,
+                      onChanged: (val) {
+                        notifier.updateSettings(allowZeroStockSales: val);
+                      },
+                    ),
+                  ],
+                ],
               ),
             ),
           ),

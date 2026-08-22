@@ -7,7 +7,7 @@ part of 'operational_settings_provider.dart';
 // **************************************************************************
 
 String _$operationalSettingsNotifierHash() =>
-    r'ece0a438843ecb54d3f457d98281b276ec0d3f13';
+    r'e8d90eddb0abe81cd230a05f6053dc09b7de52a8';
 
 /// See also [OperationalSettingsNotifier].
 @ProviderFor(OperationalSettingsNotifier)

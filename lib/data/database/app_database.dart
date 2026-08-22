@@ -13,6 +13,9 @@ class Barang extends Table {
   TextColumn get kategori => text()();
   IntColumn get harga => integer()();
   TextColumn get gambarPath => text().nullable()();
+  IntColumn get stok => integer().withDefault(const Constant(0))();
+  IntColumn get stokMinimal => integer().withDefault(const Constant(5))();
+  BoolColumn get kelolaStok => boolean().withDefault(const Constant(true))();
   BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
@@ -40,7 +43,23 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.addColumn(barang, barang.stok);
+          await m.addColumn(barang, barang.stokMinimal);
+          await m.addColumn(barang, barang.kelolaStok);
+        }
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
 
   // Listen Perubahan Barang
   Stream<List<BarangData>> watchAllBarang() {
@@ -74,7 +93,7 @@ class AppDatabase extends _$AppDatabase {
     return select(transaksi).watch();
   }
 
-  // Menyimpan struk transaksi lengkap (Header + Detail)
+  // Menyimpan struk transaksi lengkap (Header + Detail) dan kurangi stok otomatis
   Future<void> simpanTransaksi(
       int totalHarga, List<DetailTransaksiCompanion> rincianKeranjang) async {
     await transaction(() async {
@@ -84,11 +103,21 @@ class AppDatabase extends _$AppDatabase {
       );
 
       // 2. Simpan setiap item di keranjang ke DetailTransaksi
-      // dengan menautkan idTransaksiBaru
       for (var item in rincianKeranjang) {
         await into(detailTransaksi).insert(
           item.copyWith(idTransaksi: Value(idTransaksiBaru)),
         );
+
+        // 3. Potong stok barang secara otomatis
+        final idBarangTarget = item.idBarang.value;
+        final kuantitasBeli = item.kuantitas.value;
+
+        final targetBarang = await (select(barang)..where((b) => b.id.equals(idBarangTarget))).getSingleOrNull();
+        if (targetBarang != null) {
+          final sisaStokBaru = targetBarang.stok - kuantitasBeli;
+          await (update(barang)..where((b) => b.id.equals(idBarangTarget)))
+              .write(BarangCompanion(stok: Value(sisaStokBaru)));
+        }
       }
     });
   }
@@ -109,9 +138,19 @@ class AppDatabase extends _$AppDatabase {
     }).toList();
   }
 
-  // Menghapus transaksi beserta detailnya
-  Future<void> deleteTransaksi(int idTransaksi) async {
+  // Menghapus transaksi beserta detailnya dan mengembalikan stok barang
+  Future<void> deleteTransaksi(int idTransaksi, {bool kembalikanStok = true}) async {
     await transaction(() async {
+      if (kembalikanStok) {
+        final rincian = await (select(detailTransaksi)..where((t) => t.idTransaksi.equals(idTransaksi))).get();
+        for (var item in rincian) {
+          final targetBarang = await (select(barang)..where((b) => b.id.equals(item.idBarang))).getSingleOrNull();
+          if (targetBarang != null) {
+            await (update(barang)..where((b) => b.id.equals(item.idBarang)))
+                .write(BarangCompanion(stok: Value(targetBarang.stok + item.kuantitas)));
+          }
+        }
+      }
       await (delete(detailTransaksi)..where((t) => t.idTransaksi.equals(idTransaksi))).go();
       await (delete(transaksi)..where((t) => t.id.equals(idTransaksi))).go();
     });

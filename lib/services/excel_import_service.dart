@@ -109,6 +109,8 @@ class ExcelImportService {
       int nameColIndex = 0;
       int categoryColIndex = 1;
       int priceColIndex = 2;
+      int stockColIndex = -1;
+      int minStockColIndex = -1;
 
       final headerRow = table.rows.first;
       for (int i = 0; i < headerRow.length; i++) {
@@ -119,6 +121,10 @@ class ExcelImportService {
           categoryColIndex = i;
         } else if (cellValue.contains('harga') || cellValue.contains('price')) {
           priceColIndex = i;
+        } else if (cellValue.contains('stok_min') || cellValue.contains('min_stok') || cellValue.contains('minimal')) {
+          minStockColIndex = i;
+        } else if (cellValue.contains('stok') || cellValue.contains('stock') || cellValue.contains('qty')) {
+          stockColIndex = i;
         }
       }
 
@@ -133,6 +139,8 @@ class ExcelImportService {
         final namaStr = nameColIndex < row.length ? _getCellValueString(row[nameColIndex]).trim() : '';
         final kategoriStr = categoryColIndex < row.length ? _getCellValueString(row[categoryColIndex]).trim() : '';
         final hargaVal = priceColIndex < row.length ? _parsePrice(row[priceColIndex]) : 0;
+        final stokVal = (stockColIndex >= 0 && stockColIndex < row.length) ? _parsePrice(row[stockColIndex]) : 0;
+        final stokMinVal = (minStockColIndex >= 0 && minStockColIndex < row.length) ? _parsePrice(row[minStockColIndex]) : 5;
 
         // Validasi: Nama barang tidak boleh kosong & harga harus valid
         if (namaStr.isEmpty) {
@@ -148,6 +156,9 @@ class ExcelImportService {
             kategori: kategoriFix,
             harga: hargaVal,
             gambarPath: const Value.absent(),
+            stok: Value(stokVal),
+            stokMinimal: Value(stokMinVal),
+            kelolaStok: const Value(true),
           ),
         );
       }

@@ -24,6 +24,8 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _hargaController = TextEditingController();
+  final _stokController = TextEditingController(text: '0');
+  final _stokMinimalController = TextEditingController(text: '5');
 
   String _selectedKategori = 'Umum';
   final List<String> _kategoriOptions = [
@@ -44,6 +46,8 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     if (isEditMode) {
       _namaController.text = widget.barangToEdit!.nama;
       _hargaController.text = widget.barangToEdit!.harga.toString();
+      _stokController.text = widget.barangToEdit!.stok.toString();
+      _stokMinimalController.text = widget.barangToEdit!.stokMinimal.toString();
       _gambarPath = widget.barangToEdit!.gambarPath;
 
       if (_kategoriOptions.contains(widget.barangToEdit!.kategori)) {
@@ -65,6 +69,8 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
   void dispose() {
     _namaController.dispose();
     _hargaController.dispose();
+    _stokController.dispose();
+    _stokMinimalController.dispose();
     super.dispose();
   }
 
@@ -72,12 +78,16 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     if (_formKey.currentState!.validate()) {
       final inputHarga =
           int.parse(_hargaController.text.replaceAll(RegExp(r'[^0-9]'), ''));
+      final inputStok = int.tryParse(_stokController.text) ?? 0;
+      final inputStokMin = int.tryParse(_stokMinimalController.text) ?? 5;
 
       if (isEditMode) {
         // Mode Edit
         final barangDiupdate = widget.barangToEdit!.copyWith(
           nama: _namaController.text,
           harga: inputHarga,
+          stok: inputStok,
+          stokMinimal: inputStokMin,
           kategori: _selectedKategori,
           gambarPath: Value(_gambarPath),
         );
@@ -94,6 +104,8 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
           nama: _namaController.text,
           kategori: _selectedKategori,
           harga: inputHarga,
+          stok: Value(inputStok),
+          stokMinimal: Value(inputStokMin),
           gambarPath: Value(_gambarPath),
         );
         ref.read(inventoryProvider.notifier).addBarang(barangBaru);
@@ -209,7 +221,6 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
                   ? 'Nama tidak boleh kosong'
                   : null,
               onChanged: (val) {
-                // Trigger rebuild jika menggunakan fallback image inisial
                 if (_gambarPath == null) setState(() {});
               },
             ),
@@ -240,6 +251,34 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
                   .toList(),
               onChanged: (newValue) =>
                   setState(() => _selectedKategori = newValue!),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _stokController,
+                    decoration: const InputDecoration(
+                      labelText: 'Stok Saat Ini',
+                      hintText: '0',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextFormField(
+                    controller: _stokMinimalController,
+                    decoration: const InputDecoration(
+                      labelText: 'Stok Minimal (Alert)',
+                      hintText: '5',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
             SizedBox(

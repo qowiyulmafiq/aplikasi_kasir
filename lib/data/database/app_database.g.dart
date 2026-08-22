@@ -2,7 +2,7 @@
 
 part of 'app_database.dart';
 
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, unnecessary_null_comparison, unnecessary_non_null_assertion
 class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -42,6 +42,31 @@ class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
   late final GeneratedColumn<String> gambarPath = GeneratedColumn<String>(
       'gambar_path', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _stokMeta = const VerificationMeta('stok');
+  @override
+  late final GeneratedColumn<int> stok = GeneratedColumn<int>(
+      'stok', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _stokMinimalMeta =
+      const VerificationMeta('stokMinimal');
+  @override
+  late final GeneratedColumn<int> stokMinimal = GeneratedColumn<int>(
+      'stok_minimal', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(5));
+  static const VerificationMeta _kelolaStokMeta =
+      const VerificationMeta('kelolaStok');
+  @override
+  late final GeneratedColumn<bool> kelolaStok = GeneratedColumn<bool>(
+      'kelola_stok', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("kelola_stok" IN (0, 1))'),
+      defaultValue: const Constant(true));
   static const VerificationMeta _isSyncedMeta =
       const VerificationMeta('isSynced');
   @override
@@ -69,8 +94,19 @@ class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, nama, kategori, harga, gambarPath, isSynced, createdAt, updatedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        nama,
+        kategori,
+        harga,
+        gambarPath,
+        stok,
+        stokMinimal,
+        kelolaStok,
+        isSynced,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -108,6 +144,22 @@ class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
           gambarPath.isAcceptableOrUnknown(
               data['gambar_path']!, _gambarPathMeta));
     }
+    if (data.containsKey('stok')) {
+      context.handle(
+          _stokMeta, stok.isAcceptableOrUnknown(data['stok']!, _stokMeta));
+    }
+    if (data.containsKey('stok_minimal')) {
+      context.handle(
+          _stokMinimalMeta,
+          stokMinimal.isAcceptableOrUnknown(
+              data['stok_minimal']!, _stokMinimalMeta));
+    }
+    if (data.containsKey('kelola_stok')) {
+      context.handle(
+          _kelolaStokMeta,
+          kelolaStok.isAcceptableOrUnknown(
+              data['kelola_stok']!, _kelolaStokMeta));
+    }
     if (data.containsKey('is_synced')) {
       context.handle(_isSyncedMeta,
           isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
@@ -139,6 +191,12 @@ class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
           .read(DriftSqlType.int, data['${effectivePrefix}harga'])!,
       gambarPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}gambar_path']),
+      stok: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}stok'])!,
+      stokMinimal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}stok_minimal'])!,
+      kelolaStok: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}kelola_stok'])!,
       isSynced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_synced'])!,
       createdAt: attachedDatabase.typeMapping
@@ -160,6 +218,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
   final String kategori;
   final int harga;
   final String? gambarPath;
+  final int stok;
+  final int stokMinimal;
+  final bool kelolaStok;
   final bool isSynced;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -169,6 +230,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
       required this.kategori,
       required this.harga,
       this.gambarPath,
+      required this.stok,
+      required this.stokMinimal,
+      required this.kelolaStok,
       required this.isSynced,
       required this.createdAt,
       required this.updatedAt});
@@ -182,6 +246,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
     if (!nullToAbsent || gambarPath != null) {
       map['gambar_path'] = Variable<String>(gambarPath);
     }
+    map['stok'] = Variable<int>(stok);
+    map['stok_minimal'] = Variable<int>(stokMinimal);
+    map['kelola_stok'] = Variable<bool>(kelolaStok);
     map['is_synced'] = Variable<bool>(isSynced);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -197,6 +264,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
       gambarPath: gambarPath == null && nullToAbsent
           ? const Value.absent()
           : Value(gambarPath),
+      stok: Value(stok),
+      stokMinimal: Value(stokMinimal),
+      kelolaStok: Value(kelolaStok),
       isSynced: Value(isSynced),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -212,6 +282,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
       kategori: serializer.fromJson<String>(json['kategori']),
       harga: serializer.fromJson<int>(json['harga']),
       gambarPath: serializer.fromJson<String?>(json['gambarPath']),
+      stok: serializer.fromJson<int>(json['stok']),
+      stokMinimal: serializer.fromJson<int>(json['stokMinimal']),
+      kelolaStok: serializer.fromJson<bool>(json['kelolaStok']),
       isSynced: serializer.fromJson<bool>(json['isSynced']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -226,6 +299,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
       'kategori': serializer.toJson<String>(kategori),
       'harga': serializer.toJson<int>(harga),
       'gambarPath': serializer.toJson<String?>(gambarPath),
+      'stok': serializer.toJson<int>(stok),
+      'stokMinimal': serializer.toJson<int>(stokMinimal),
+      'kelolaStok': serializer.toJson<bool>(kelolaStok),
       'isSynced': serializer.toJson<bool>(isSynced),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -238,6 +314,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
           String? kategori,
           int? harga,
           Value<String?> gambarPath = const Value.absent(),
+          int? stok,
+          int? stokMinimal,
+          bool? kelolaStok,
           bool? isSynced,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
@@ -247,6 +326,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
         kategori: kategori ?? this.kategori,
         harga: harga ?? this.harga,
         gambarPath: gambarPath.present ? gambarPath.value : this.gambarPath,
+        stok: stok ?? this.stok,
+        stokMinimal: stokMinimal ?? this.stokMinimal,
+        kelolaStok: kelolaStok ?? this.kelolaStok,
         isSynced: isSynced ?? this.isSynced,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -259,6 +341,11 @@ class BarangData extends DataClass implements Insertable<BarangData> {
       harga: data.harga.present ? data.harga.value : this.harga,
       gambarPath:
           data.gambarPath.present ? data.gambarPath.value : this.gambarPath,
+      stok: data.stok.present ? data.stok.value : this.stok,
+      stokMinimal:
+          data.stokMinimal.present ? data.stokMinimal.value : this.stokMinimal,
+      kelolaStok:
+          data.kelolaStok.present ? data.kelolaStok.value : this.kelolaStok,
       isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -273,6 +360,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
           ..write('kategori: $kategori, ')
           ..write('harga: $harga, ')
           ..write('gambarPath: $gambarPath, ')
+          ..write('stok: $stok, ')
+          ..write('stokMinimal: $stokMinimal, ')
+          ..write('kelolaStok: $kelolaStok, ')
           ..write('isSynced: $isSynced, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -281,8 +371,8 @@ class BarangData extends DataClass implements Insertable<BarangData> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, nama, kategori, harga, gambarPath, isSynced, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, nama, kategori, harga, gambarPath, stok,
+      stokMinimal, kelolaStok, isSynced, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -292,6 +382,9 @@ class BarangData extends DataClass implements Insertable<BarangData> {
           other.kategori == this.kategori &&
           other.harga == this.harga &&
           other.gambarPath == this.gambarPath &&
+          other.stok == this.stok &&
+          other.stokMinimal == this.stokMinimal &&
+          other.kelolaStok == this.kelolaStok &&
           other.isSynced == this.isSynced &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -303,6 +396,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
   final Value<String> kategori;
   final Value<int> harga;
   final Value<String?> gambarPath;
+  final Value<int> stok;
+  final Value<int> stokMinimal;
+  final Value<bool> kelolaStok;
   final Value<bool> isSynced;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -312,6 +408,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
     this.kategori = const Value.absent(),
     this.harga = const Value.absent(),
     this.gambarPath = const Value.absent(),
+    this.stok = const Value.absent(),
+    this.stokMinimal = const Value.absent(),
+    this.kelolaStok = const Value.absent(),
     this.isSynced = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -322,6 +421,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
     required String kategori,
     required int harga,
     this.gambarPath = const Value.absent(),
+    this.stok = const Value.absent(),
+    this.stokMinimal = const Value.absent(),
+    this.kelolaStok = const Value.absent(),
     this.isSynced = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -334,6 +436,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
     Expression<String>? kategori,
     Expression<int>? harga,
     Expression<String>? gambarPath,
+    Expression<int>? stok,
+    Expression<int>? stokMinimal,
+    Expression<bool>? kelolaStok,
     Expression<bool>? isSynced,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -344,6 +449,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
       if (kategori != null) 'kategori': kategori,
       if (harga != null) 'harga': harga,
       if (gambarPath != null) 'gambar_path': gambarPath,
+      if (stok != null) 'stok': stok,
+      if (stokMinimal != null) 'stok_minimal': stokMinimal,
+      if (kelolaStok != null) 'kelola_stok': kelolaStok,
       if (isSynced != null) 'is_synced': isSynced,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -356,6 +464,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
       Value<String>? kategori,
       Value<int>? harga,
       Value<String?>? gambarPath,
+      Value<int>? stok,
+      Value<int>? stokMinimal,
+      Value<bool>? kelolaStok,
       Value<bool>? isSynced,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
@@ -365,6 +476,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
       kategori: kategori ?? this.kategori,
       harga: harga ?? this.harga,
       gambarPath: gambarPath ?? this.gambarPath,
+      stok: stok ?? this.stok,
+      stokMinimal: stokMinimal ?? this.stokMinimal,
+      kelolaStok: kelolaStok ?? this.kelolaStok,
       isSynced: isSynced ?? this.isSynced,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -389,6 +503,15 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
     if (gambarPath.present) {
       map['gambar_path'] = Variable<String>(gambarPath.value);
     }
+    if (stok.present) {
+      map['stok'] = Variable<int>(stok.value);
+    }
+    if (stokMinimal.present) {
+      map['stok_minimal'] = Variable<int>(stokMinimal.value);
+    }
+    if (kelolaStok.present) {
+      map['kelola_stok'] = Variable<bool>(kelolaStok.value);
+    }
     if (isSynced.present) {
       map['is_synced'] = Variable<bool>(isSynced.value);
     }
@@ -409,6 +532,9 @@ class BarangCompanion extends UpdateCompanion<BarangData> {
           ..write('kategori: $kategori, ')
           ..write('harga: $harga, ')
           ..write('gambarPath: $gambarPath, ')
+          ..write('stok: $stok, ')
+          ..write('stokMinimal: $stokMinimal, ')
+          ..write('kelolaStok: $kelolaStok, ')
           ..write('isSynced: $isSynced, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1058,6 +1184,9 @@ typedef $$BarangTableCreateCompanionBuilder = BarangCompanion Function({
   required String kategori,
   required int harga,
   Value<String?> gambarPath,
+  Value<int> stok,
+  Value<int> stokMinimal,
+  Value<bool> kelolaStok,
   Value<bool> isSynced,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -1068,6 +1197,9 @@ typedef $$BarangTableUpdateCompanionBuilder = BarangCompanion Function({
   Value<String> kategori,
   Value<int> harga,
   Value<String?> gambarPath,
+  Value<int> stok,
+  Value<int> stokMinimal,
+  Value<bool> kelolaStok,
   Value<bool> isSynced,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -1118,6 +1250,15 @@ class $$BarangTableFilterComposer
 
   ColumnFilters<String> get gambarPath => $composableBuilder(
       column: $table.gambarPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get stok => $composableBuilder(
+      column: $table.stok, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get stokMinimal => $composableBuilder(
+      column: $table.stokMinimal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get kelolaStok => $composableBuilder(
+      column: $table.kelolaStok, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isSynced => $composableBuilder(
       column: $table.isSynced, builder: (column) => ColumnFilters(column));
@@ -1174,6 +1315,15 @@ class $$BarangTableOrderingComposer
   ColumnOrderings<String> get gambarPath => $composableBuilder(
       column: $table.gambarPath, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get stok => $composableBuilder(
+      column: $table.stok, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get stokMinimal => $composableBuilder(
+      column: $table.stokMinimal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get kelolaStok => $composableBuilder(
+      column: $table.kelolaStok, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get isSynced => $composableBuilder(
       column: $table.isSynced, builder: (column) => ColumnOrderings(column));
 
@@ -1207,6 +1357,15 @@ class $$BarangTableAnnotationComposer
 
   GeneratedColumn<String> get gambarPath => $composableBuilder(
       column: $table.gambarPath, builder: (column) => column);
+
+  GeneratedColumn<int> get stok =>
+      $composableBuilder(column: $table.stok, builder: (column) => column);
+
+  GeneratedColumn<int> get stokMinimal => $composableBuilder(
+      column: $table.stokMinimal, builder: (column) => column);
+
+  GeneratedColumn<bool> get kelolaStok => $composableBuilder(
+      column: $table.kelolaStok, builder: (column) => column);
 
   GeneratedColumn<bool> get isSynced =>
       $composableBuilder(column: $table.isSynced, builder: (column) => column);
@@ -1267,6 +1426,9 @@ class $$BarangTableTableManager extends RootTableManager<
             Value<String> kategori = const Value.absent(),
             Value<int> harga = const Value.absent(),
             Value<String?> gambarPath = const Value.absent(),
+            Value<int> stok = const Value.absent(),
+            Value<int> stokMinimal = const Value.absent(),
+            Value<bool> kelolaStok = const Value.absent(),
             Value<bool> isSynced = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -1277,6 +1439,9 @@ class $$BarangTableTableManager extends RootTableManager<
             kategori: kategori,
             harga: harga,
             gambarPath: gambarPath,
+            stok: stok,
+            stokMinimal: stokMinimal,
+            kelolaStok: kelolaStok,
             isSynced: isSynced,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -1287,6 +1452,9 @@ class $$BarangTableTableManager extends RootTableManager<
             required String kategori,
             required int harga,
             Value<String?> gambarPath = const Value.absent(),
+            Value<int> stok = const Value.absent(),
+            Value<int> stokMinimal = const Value.absent(),
+            Value<bool> kelolaStok = const Value.absent(),
             Value<bool> isSynced = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -1297,6 +1465,9 @@ class $$BarangTableTableManager extends RootTableManager<
             kategori: kategori,
             harga: harga,
             gambarPath: gambarPath,
+            stok: stok,
+            stokMinimal: stokMinimal,
+            kelolaStok: kelolaStok,
             isSynced: isSynced,
             createdAt: createdAt,
             updatedAt: updatedAt,
