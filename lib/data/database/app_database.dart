@@ -38,12 +38,17 @@ class DetailTransaksi extends Table {
   IntColumn get subtotal => integer()();
 }
 
-@DriftDatabase(tables: [Barang, Transaksi, DetailTransaksi])
+class Kategori extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get nama => text().withLength(min: 1, max: 100)();
+}
+
+@DriftDatabase(tables: [Barang, Transaksi, DetailTransaksi, Kategori])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -54,11 +59,47 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(barang, barang.stokMinimal);
           await m.addColumn(barang, barang.kelolaStok);
         }
+        if (from < 3) {
+          await m.createTable(kategori);
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');
+        // Initial seed default categories if empty
+        final listKategori = await select(kategori).get();
+        if (listKategori.isEmpty) {
+          final defaultCategories = ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'];
+          for (final cat in defaultCategories) {
+            await into(kategori).insert(KategoriCompanion.insert(nama: cat));
+          }
+        }
       },
     );
+  }
+
+  // Listen Perubahan Kategori
+  Stream<List<KategoriData>> watchAllKategori() {
+    return select(kategori).watch();
+  }
+
+  Future<List<KategoriData>> getAllKategori() {
+    return select(kategori).get();
+  }
+
+  Future<int> insertKategori(KategoriCompanion companion) {
+    return into(kategori).insert(companion);
+  }
+
+  Future<bool> updateKategori(KategoriData data) {
+    return update(kategori).replace(data);
+  }
+
+  Future<void> deleteKategori(int idKategori, String namaKategori) async {
+    await transaction(() async {
+      await (update(barang)..where((b) => b.kategori.equals(namaKategori)))
+          .write(const BarangCompanion(kategori: Value('Umum')));
+      await (delete(kategori)..where((k) => k.id.equals(idKategori))).go();
+    });
   }
 
   // Listen Perubahan Barang

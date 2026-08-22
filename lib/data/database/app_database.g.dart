@@ -1163,6 +1163,186 @@ class DetailTransaksiCompanion extends UpdateCompanion<DetailTransaksiData> {
   }
 }
 
+class $KategoriTable extends Kategori
+    with TableInfo<$KategoriTable, KategoriData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $KategoriTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _namaMeta = const VerificationMeta('nama');
+  @override
+  late final GeneratedColumn<String> nama = GeneratedColumn<String>(
+      'nama', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, nama];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'kategori';
+  @override
+  VerificationContext validateIntegrity(Insertable<KategoriData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('nama')) {
+      context.handle(
+          _namaMeta, nama.isAcceptableOrUnknown(data['nama']!, _namaMeta));
+    } else if (isInserting) {
+      context.missing(_namaMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  KategoriData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return KategoriData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      nama: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nama'])!,
+    );
+  }
+
+  @override
+  $KategoriTable createAlias(String alias) {
+    return $KategoriTable(attachedDatabase, alias);
+  }
+}
+
+class KategoriData extends DataClass implements Insertable<KategoriData> {
+  final int id;
+  final String nama;
+  const KategoriData({required this.id, required this.nama});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['nama'] = Variable<String>(nama);
+    return map;
+  }
+
+  KategoriCompanion toCompanion(bool nullToAbsent) {
+    return KategoriCompanion(
+      id: Value(id),
+      nama: Value(nama),
+    );
+  }
+
+  factory KategoriData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return KategoriData(
+      id: serializer.fromJson<int>(json['id']),
+      nama: serializer.fromJson<String>(json['nama']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'nama': serializer.toJson<String>(nama),
+    };
+  }
+
+  KategoriData copyWith({int? id, String? nama}) => KategoriData(
+        id: id ?? this.id,
+        nama: nama ?? this.nama,
+      );
+  KategoriData copyWithCompanion(KategoriCompanion data) {
+    return KategoriData(
+      id: data.id.present ? data.id.value : this.id,
+      nama: data.nama.present ? data.nama.value : this.nama,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KategoriData(')
+          ..write('id: $id, ')
+          ..write('nama: $nama')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, nama);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KategoriData && other.id == this.id && other.nama == this.nama);
+}
+
+class KategoriCompanion extends UpdateCompanion<KategoriData> {
+  final Value<int> id;
+  final Value<String> nama;
+  const KategoriCompanion({
+    this.id = const Value.absent(),
+    this.nama = const Value.absent(),
+  });
+  KategoriCompanion.insert({
+    this.id = const Value.absent(),
+    required String nama,
+  }) : nama = Value(nama);
+  static Insertable<KategoriData> custom({
+    Expression<int>? id,
+    Expression<String>? nama,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (nama != null) 'nama': nama,
+    });
+  }
+
+  KategoriCompanion copyWith({Value<int>? id, Value<String>? nama}) {
+    return KategoriCompanion(
+      id: id ?? this.id,
+      nama: nama ?? this.nama,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (nama.present) {
+      map['nama'] = Variable<String>(nama.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KategoriCompanion(')
+          ..write('id: $id, ')
+          ..write('nama: $nama')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1170,12 +1350,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TransaksiTable transaksi = $TransaksiTable(this);
   late final $DetailTransaksiTable detailTransaksi =
       $DetailTransaksiTable(this);
+  late final $KategoriTable kategori = $KategoriTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [barang, transaksi, detailTransaksi];
+      [barang, transaksi, detailTransaksi, kategori];
 }
 
 typedef $$BarangTableCreateCompanionBuilder = BarangCompanion Function({
@@ -2113,6 +2294,120 @@ typedef $$DetailTransaksiTableProcessedTableManager = ProcessedTableManager<
     (DetailTransaksiData, $$DetailTransaksiTableReferences),
     DetailTransaksiData,
     PrefetchHooks Function({bool idTransaksi, bool idBarang})>;
+typedef $$KategoriTableCreateCompanionBuilder = KategoriCompanion Function({
+  Value<int> id,
+  required String nama,
+});
+typedef $$KategoriTableUpdateCompanionBuilder = KategoriCompanion Function({
+  Value<int> id,
+  Value<String> nama,
+});
+
+class $$KategoriTableFilterComposer
+    extends Composer<_$AppDatabase, $KategoriTable> {
+  $$KategoriTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nama => $composableBuilder(
+      column: $table.nama, builder: (column) => ColumnFilters(column));
+}
+
+class $$KategoriTableOrderingComposer
+    extends Composer<_$AppDatabase, $KategoriTable> {
+  $$KategoriTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nama => $composableBuilder(
+      column: $table.nama, builder: (column) => ColumnOrderings(column));
+}
+
+class $$KategoriTableAnnotationComposer
+    extends Composer<_$AppDatabase, $KategoriTable> {
+  $$KategoriTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get nama =>
+      $composableBuilder(column: $table.nama, builder: (column) => column);
+}
+
+class $$KategoriTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $KategoriTable,
+    KategoriData,
+    $$KategoriTableFilterComposer,
+    $$KategoriTableOrderingComposer,
+    $$KategoriTableAnnotationComposer,
+    $$KategoriTableCreateCompanionBuilder,
+    $$KategoriTableUpdateCompanionBuilder,
+    (KategoriData, BaseReferences<_$AppDatabase, $KategoriTable, KategoriData>),
+    KategoriData,
+    PrefetchHooks Function()> {
+  $$KategoriTableTableManager(_$AppDatabase db, $KategoriTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$KategoriTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KategoriTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KategoriTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> nama = const Value.absent(),
+          }) =>
+              KategoriCompanion(
+            id: id,
+            nama: nama,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String nama,
+          }) =>
+              KategoriCompanion.insert(
+            id: id,
+            nama: nama,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$KategoriTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $KategoriTable,
+    KategoriData,
+    $$KategoriTableFilterComposer,
+    $$KategoriTableOrderingComposer,
+    $$KategoriTableAnnotationComposer,
+    $$KategoriTableCreateCompanionBuilder,
+    $$KategoriTableUpdateCompanionBuilder,
+    (KategoriData, BaseReferences<_$AppDatabase, $KategoriTable, KategoriData>),
+    KategoriData,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2123,4 +2418,6 @@ class $AppDatabaseManager {
       $$TransaksiTableTableManager(_db, _db.transaksi);
   $$DetailTransaksiTableTableManager get detailTransaksi =>
       $$DetailTransaksiTableTableManager(_db, _db.detailTransaksi);
+  $$KategoriTableTableManager get kategori =>
+      $$KategoriTableTableManager(_db, _db.kategori);
 }

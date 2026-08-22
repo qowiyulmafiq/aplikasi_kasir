@@ -40,40 +40,85 @@ class Inventory extends _$Inventory {
   }
 }
 
+enum ProductSortOption {
+  namaAsc('Nama (A - Z)'),
+  namaDesc('Nama (Z - A)'),
+  hargaAsc('Harga (Termurah)'),
+  hargaDesc('Harga (Termahal)'),
+  stokAsc('Stok (Paling Sedikit)'),
+  stokDesc('Stok (Paling Banyak)');
+
+  final String label;
+  const ProductSortOption(this.label);
+}
+
 // --- STATE KASIR (POS) ---
 final posSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 final posSelectedCategoryProvider = StateProvider.autoDispose<String>((ref) => 'Semua');
+final posSortOptionProvider = StateProvider.autoDispose<ProductSortOption>((ref) => ProductSortOption.namaAsc);
 
 final filteredPosCatalogProvider = Provider.autoDispose<AsyncValue<List<BarangData>>>((ref) {
   final inventoryState = ref.watch(inventoryProvider);
   final searchQuery = ref.watch(posSearchQueryProvider).toLowerCase();
   final selectedCategory = ref.watch(posSelectedCategoryProvider);
+  final sortOption = ref.watch(posSortOptionProvider);
 
   return inventoryState.whenData((daftarBarang) {
-    return daftarBarang.where((barang) {
+    final filtered = daftarBarang.where((barang) {
       final matchKategori =
           selectedCategory == 'Semua' || barang.kategori == selectedCategory;
       final matchPencarian = barang.nama.toLowerCase().contains(searchQuery);
       return matchKategori && matchPencarian;
     }).toList();
+
+    _sortBarang(filtered, sortOption);
+    return filtered;
   });
 });
 
 // --- STATE INVENTARIS ---
 final inventorySearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 final inventorySelectedCategoryProvider = StateProvider.autoDispose<String>((ref) => 'Semua');
+final inventorySortOptionProvider = StateProvider.autoDispose<ProductSortOption>((ref) => ProductSortOption.namaAsc);
 
 final filteredInventoryProvider = Provider.autoDispose<AsyncValue<List<BarangData>>>((ref) {
   final inventoryState = ref.watch(inventoryProvider);
   final searchQuery = ref.watch(inventorySearchQueryProvider).toLowerCase();
   final selectedCategory = ref.watch(inventorySelectedCategoryProvider);
+  final sortOption = ref.watch(inventorySortOptionProvider);
 
   return inventoryState.whenData((daftarBarang) {
-    return daftarBarang.where((barang) {
+    final filtered = daftarBarang.where((barang) {
       final matchKategori =
           selectedCategory == 'Semua' || barang.kategori == selectedCategory;
       final matchPencarian = barang.nama.toLowerCase().contains(searchQuery);
       return matchKategori && matchPencarian;
     }).toList();
+
+    _sortBarang(filtered, sortOption);
+    return filtered;
   });
 });
+
+void _sortBarang(List<BarangData> list, ProductSortOption option) {
+  switch (option) {
+    case ProductSortOption.namaAsc:
+      list.sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+      break;
+    case ProductSortOption.namaDesc:
+      list.sort((a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
+      break;
+    case ProductSortOption.hargaAsc:
+      list.sort((a, b) => a.harga.compareTo(b.harga));
+      break;
+    case ProductSortOption.hargaDesc:
+      list.sort((a, b) => b.harga.compareTo(a.harga));
+      break;
+    case ProductSortOption.stokAsc:
+      list.sort((a, b) => a.stok.compareTo(b.stok));
+      break;
+    case ProductSortOption.stokDesc:
+      list.sort((a, b) => b.stok.compareTo(a.stok));
+      break;
+  }
+}

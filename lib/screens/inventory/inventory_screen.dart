@@ -8,6 +8,10 @@ import '../../providers/system_settings_provider.dart';
 import '../../services/excel_import_service.dart';
 import '../../widgets/inventory_item_card.dart';
 
+import '../../providers/category_provider.dart';
+import '../../widgets/category_management_sheet.dart';
+import '../../widgets/category_quick_picker_sheet.dart';
+
 class InventoryScreen extends ConsumerWidget {
   const InventoryScreen({super.key});
 
@@ -15,19 +19,19 @@ class InventoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final inventoryState = ref.watch(filteredInventoryProvider);
 
-    // Membaca status pencarian dan kategori saat ini khusus Inventaris
+    // Membaca status pencarian, kategori, dan urutan saat ini khusus Inventaris
     final searchQuery = ref.watch(inventorySearchQueryProvider);
     final selectedCategory = ref.watch(inventorySelectedCategoryProvider);
+    final selectedSort = ref.watch(inventorySortOptionProvider);
     final systemSettings = ref.watch(systemSettingsNotifierProvider);
 
-    // Daftar kategori untuk Filter Chips
+    final categoriesAsync = ref.watch(categoryListProvider);
     final List<String> kategoriOptions = [
       'Semua',
-      'Umum',
-      'Sembako',
-      'Makanan',
-      'Minuman',
-      'Lainnya'
+      ...categoriesAsync.maybeWhen(
+        data: (list) => list.map((k) => k.nama).toList(),
+        orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
+      )
     ];
 
     return Scaffold(
@@ -37,6 +41,14 @@ class InventoryScreen extends ConsumerWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Kelola Kategori',
+            onPressed: () => CategoryManagementSheet.show(context),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       floatingActionButton: SpeedDial(
         icon: Icons.add,
@@ -52,6 +64,11 @@ class InventoryScreen extends ConsumerWidget {
             },
           ),
           SpeedDialChild(
+            child: const Icon(Icons.category_outlined),
+            label: 'Kelola Kategori',
+            onTap: () => CategoryManagementSheet.show(context),
+          ),
+          SpeedDialChild(
             child: const Icon(Icons.file_upload_outlined),
             label: 'Import Excel',
             onTap: () => _handleImportExcel(context, ref),
@@ -60,21 +77,52 @@ class InventoryScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // AREA SEARCH BAR (Sticky)
+          // AREA SEARCH BAR & FILTER BUTTON
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: SearchBar(
-              hintText: 'Cari nama barang...',
-              leading: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              elevation: const WidgetStatePropertyAll(0), // Flat design
-              backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainerHighest),
-              padding: const WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: 16.0)),
-              onChanged: (value) {
-                // Update state pencarian setiap kali pengguna mengetik
-                ref.read(inventorySearchQueryProvider.notifier).state = value;
-              },
+            child: Row(
+              children: [
+                Expanded(
+                  child: SearchBar(
+                    hintText: 'Cari nama barang...',
+                    leading: Icon(Icons.search,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    elevation: const WidgetStatePropertyAll(0),
+                    backgroundColor: WidgetStatePropertyAll(Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest),
+                    padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(horizontal: 16.0)),
+                    onChanged: (value) {
+                      ref.read(inventorySearchQueryProvider.notifier).state =
+                          value;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: () {
+                    CategoryQuickPickerSheet.show(
+                      context: context,
+                      selectedCategory: selectedCategory,
+                      onCategorySelected: (cat) {
+                        ref
+                            .read(inventorySelectedCategoryProvider.notifier)
+                            .state = cat;
+                      },
+                      selectedSort: selectedSort,
+                      onSortSelected: (sort) {
+                        ref
+                            .read(inventorySortOptionProvider.notifier)
+                            .state = sort;
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.tune_outlined),
+                  tooltip: 'Filter & Urutkan',
+                ),
+              ],
             ),
           ),
 
@@ -87,6 +135,7 @@ class InventoryScreen extends ConsumerWidget {
               itemCount: kategoriOptions.length,
               itemBuilder: (context, index) {
                 final kategori = kategoriOptions[index];
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ChoiceChip(
@@ -94,14 +143,15 @@ class InventoryScreen extends ConsumerWidget {
                     selected: selectedCategory == kategori,
                     onSelected: (bool selected) {
                       if (selected) {
-                        // Ubah state kategori jika chip ditekan
                         ref
                             .read(inventorySelectedCategoryProvider.notifier)
                             .state = kategori;
                       }
                     },
-                    selectedColor:
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    selectedColor: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.2),
                     labelStyle: TextStyle(
                       color: selectedCategory == kategori
                           ? Theme.of(context).colorScheme.onPrimaryContainer

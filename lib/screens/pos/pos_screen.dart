@@ -10,6 +10,9 @@ import '../../utils/currency_formatter.dart';
 import '../../widgets/product_image_widget.dart';
 import 'widgets/cart_bottom_sheet.dart';
 
+import '../../providers/category_provider.dart';
+import '../../widgets/category_quick_picker_sheet.dart';
+
 class PosScreen extends ConsumerWidget {
   const PosScreen({super.key});
 
@@ -45,6 +48,7 @@ class PosScreen extends ConsumerWidget {
     final inventoryState = ref.watch(filteredPosCatalogProvider);
     final searchQuery = ref.watch(posSearchQueryProvider);
     final selectedCategory = ref.watch(posSelectedCategoryProvider);
+    final selectedSort = ref.watch(posSortOptionProvider);
 
     final systemSettings = ref.watch(systemSettingsNotifierProvider);
     final opSettings = ref.watch(operationalSettingsNotifierProvider);
@@ -53,13 +57,13 @@ class PosScreen extends ConsumerWidget {
     final cartNotifier = ref.read(cartProvider.notifier);
     final totalItemsInCart = cart.fold(0, (sum, item) => sum + item.kuantitas);
 
+    final categoriesAsync = ref.watch(categoryListProvider);
     final List<String> kategoriOptions = [
       'Semua',
-      'Umum',
-      'Sembako',
-      'Makanan',
-      'Minuman',
-      'Lainnya'
+      ...categoriesAsync.maybeWhen(
+        data: (list) => list.map((k) => k.nama).toList(),
+        orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
+      )
     ];
 
     return Scaffold(
@@ -83,20 +87,48 @@ class PosScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // AREA SEARCH BAR
+          // AREA SEARCH BAR & FILTER BUTTON
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: SearchBar(
-              hintText: 'Cari produk kasir...',
-              leading: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              elevation: const WidgetStatePropertyAll(0),
-              backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainerHighest),
-              padding: const WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: 16.0)),
-              onChanged: (value) {
-                ref.read(posSearchQueryProvider.notifier).state = value;
-              },
+            child: Row(
+              children: [
+                Expanded(
+                  child: SearchBar(
+                    hintText: 'Cari produk kasir...',
+                    leading: Icon(Icons.search,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    elevation: const WidgetStatePropertyAll(0),
+                    backgroundColor: WidgetStatePropertyAll(Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest),
+                    padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(horizontal: 16.0)),
+                    onChanged: (value) {
+                      ref.read(posSearchQueryProvider.notifier).state = value;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: () {
+                    CategoryQuickPickerSheet.show(
+                      context: context,
+                      selectedCategory: selectedCategory,
+                      onCategorySelected: (cat) {
+                        ref.read(posSelectedCategoryProvider.notifier).state =
+                            cat;
+                      },
+                      selectedSort: selectedSort,
+                      onSortSelected: (sort) {
+                        ref.read(posSortOptionProvider.notifier).state = sort;
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.tune_outlined),
+                  tooltip: 'Filter & Urutkan',
+                ),
+              ],
             ),
           ),
 
@@ -109,6 +141,7 @@ class PosScreen extends ConsumerWidget {
               itemCount: kategoriOptions.length,
               itemBuilder: (context, index) {
                 final kategori = kategoriOptions[index];
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ChoiceChip(

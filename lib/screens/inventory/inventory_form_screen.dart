@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:drift/drift.dart' hide Column; // Needed for Value()
 import '../../providers/inventory_provider.dart';
+import '../../providers/category_provider.dart';
+import '../../widgets/category_management_sheet.dart';
 import '../../data/database/app_database.dart';
 import '../../utils/dialog_helper.dart';
 import '../../utils/image_picker_helper.dart';
@@ -249,15 +251,44 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
               },
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedKategori,
-              decoration: const InputDecoration(labelText: 'Kategori'),
-              items: _kategoriOptions
-                  .map((kategori) =>
-                      DropdownMenuItem(value: kategori, child: Text(kategori)))
-                  .toList(),
-              onChanged: (newValue) =>
-                  setState(() => _selectedKategori = newValue!),
+            Builder(
+              builder: (context) {
+                final categoriesAsync = ref.watch(categoryListProvider);
+                final List<String> dynamicOptions = categoriesAsync.maybeWhen(
+                  data: (list) => list.map((k) => k.nama).toList(),
+                  orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
+                );
+
+                final String activeValue = dynamicOptions.contains(_selectedKategori)
+                    ? _selectedKategori
+                    : (dynamicOptions.isNotEmpty ? dynamicOptions.first : 'Umum');
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: activeValue,
+                        decoration: const InputDecoration(labelText: 'Kategori'),
+                        items: dynamicOptions
+                            .map((kategori) => DropdownMenuItem(
+                                value: kategori, child: Text(kategori)))
+                            .toList(),
+                        onChanged: (newValue) {
+                          if (newValue != null) {
+                            setState(() => _selectedKategori = newValue);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filledTonal(
+                      onPressed: () => CategoryManagementSheet.show(context),
+                      icon: const Icon(Icons.add),
+                      tooltip: 'Kelola / Tambah Kategori',
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 16),
             Row(
