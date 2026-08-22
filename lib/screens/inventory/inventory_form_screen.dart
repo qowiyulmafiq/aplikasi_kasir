@@ -124,14 +124,28 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     DialogHelper.showDeleteConfirm(
       context: context,
       itemName: widget.barangToEdit!.nama,
-      onConfirm: () {
-        ref.read(inventoryProvider.notifier).deleteBarang(widget.barangToEdit!);
-        context.pop();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Barang dihapus!'), backgroundColor: Colors.red),
-        );
+      onConfirm: () async {
+        try {
+          await ref.read(inventoryProvider.notifier).deleteBarang(widget.barangToEdit!);
+          if (mounted) {
+            context.pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Barang berhasil dihapus!'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Gagal menghapus barang: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       },
     );
   }
@@ -141,13 +155,6 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditMode ? 'Edit Barang' : 'Tambah Barang'),
-        actions: [
-          if (isEditMode)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: _konfirmasiHapus,
-            )
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -291,6 +298,31 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
                         fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
+            if (isEditMode) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: _konfirmasiHapus,
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  label: const Text(
+                    'Hapus Produk Ini',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.red),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

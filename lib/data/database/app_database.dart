@@ -83,9 +83,12 @@ class AppDatabase extends _$AppDatabase {
     return update(barang).replace(barangData);
   }
 
-  // Menghapus barang
-  Future<int> deleteBarang(BarangData barangData) {
-    return delete(barang).delete(barangData);
+  // Menghapus barang (beserta detail transaksi terkait secara aman)
+  Future<void> deleteBarang(BarangData barangData) async {
+    await transaction(() async {
+      await (delete(detailTransaksi)..where((d) => d.idBarang.equals(barangData.id))).go();
+      await (delete(barang)..where((b) => b.id.equals(barangData.id))).go();
+    });
   }
 
   // Mendengarkan riwayat transaksi
