@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../providers/store_settings_provider.dart';
+import '../../widgets/custom_text_field.dart';
+
 
 class StoreSettingsScreen extends ConsumerStatefulWidget {
   const StoreSettingsScreen({super.key});
@@ -242,17 +244,14 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
 
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon) {
-    return TextField(
+    return CustomTextField(
+      label: label,
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        isDense: true,
-      ),
+      prefixIcon: Icon(icon),
       onChanged: (val) => _updateSettings(),
     );
   }
+
 
   Widget _buildReceiptPreview(StoreSettings settings) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');

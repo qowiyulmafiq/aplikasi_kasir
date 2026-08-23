@@ -52,28 +52,39 @@ enum ProductSortOption {
   const ProductSortOption(this.label);
 }
 
-// --- STATE KASIR (POS) ---
-final posSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
-final posSelectedCategoryProvider = StateProvider.autoDispose<String>((ref) => 'Semua');
-final posSortOptionProvider = StateProvider.autoDispose<ProductSortOption>((ref) => ProductSortOption.namaAsc);
-
-final filteredPosCatalogProvider = Provider.autoDispose<AsyncValue<List<BarangData>>>((ref) {
-  final inventoryState = ref.watch(inventoryProvider);
-  final searchQuery = ref.watch(posSearchQueryProvider).toLowerCase();
-  final selectedCategory = ref.watch(posSelectedCategoryProvider);
-  final sortOption = ref.watch(posSortOptionProvider);
-
+// Helper generik untuk memfilter dan mengurutkan katalog barang
+AsyncValue<List<BarangData>> _filterAndSortCatalog(
+  AsyncValue<List<BarangData>> inventoryState,
+  String searchQuery,
+  String selectedCategory,
+  ProductSortOption sortOption,
+) {
+  final query = searchQuery.toLowerCase();
   return inventoryState.whenData((daftarBarang) {
     final filtered = daftarBarang.where((barang) {
       final matchKategori =
           selectedCategory == 'Semua' || barang.kategori == selectedCategory;
-      final matchPencarian = barang.nama.toLowerCase().contains(searchQuery);
+      final matchPencarian = barang.nama.toLowerCase().contains(query);
       return matchKategori && matchPencarian;
     }).toList();
 
     _sortBarang(filtered, sortOption);
     return filtered;
   });
+}
+
+// --- STATE KASIR (POS) ---
+final posSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+final posSelectedCategoryProvider = StateProvider.autoDispose<String>((ref) => 'Semua');
+final posSortOptionProvider = StateProvider.autoDispose<ProductSortOption>((ref) => ProductSortOption.namaAsc);
+
+final filteredPosCatalogProvider = Provider.autoDispose<AsyncValue<List<BarangData>>>((ref) {
+  return _filterAndSortCatalog(
+    ref.watch(inventoryProvider),
+    ref.watch(posSearchQueryProvider),
+    ref.watch(posSelectedCategoryProvider),
+    ref.watch(posSortOptionProvider),
+  );
 });
 
 // --- STATE INVENTARIS ---
@@ -82,23 +93,14 @@ final inventorySelectedCategoryProvider = StateProvider.autoDispose<String>((ref
 final inventorySortOptionProvider = StateProvider.autoDispose<ProductSortOption>((ref) => ProductSortOption.namaAsc);
 
 final filteredInventoryProvider = Provider.autoDispose<AsyncValue<List<BarangData>>>((ref) {
-  final inventoryState = ref.watch(inventoryProvider);
-  final searchQuery = ref.watch(inventorySearchQueryProvider).toLowerCase();
-  final selectedCategory = ref.watch(inventorySelectedCategoryProvider);
-  final sortOption = ref.watch(inventorySortOptionProvider);
-
-  return inventoryState.whenData((daftarBarang) {
-    final filtered = daftarBarang.where((barang) {
-      final matchKategori =
-          selectedCategory == 'Semua' || barang.kategori == selectedCategory;
-      final matchPencarian = barang.nama.toLowerCase().contains(searchQuery);
-      return matchKategori && matchPencarian;
-    }).toList();
-
-    _sortBarang(filtered, sortOption);
-    return filtered;
-  });
+  return _filterAndSortCatalog(
+    ref.watch(inventoryProvider),
+    ref.watch(inventorySearchQueryProvider),
+    ref.watch(inventorySelectedCategoryProvider),
+    ref.watch(inventorySortOptionProvider),
+  );
 });
+
 
 void _sortBarang(List<BarangData> list, ProductSortOption option) {
   switch (option) {

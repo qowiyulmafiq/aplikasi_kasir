@@ -57,14 +57,8 @@ class PosScreen extends ConsumerWidget {
     final cartNotifier = ref.read(cartProvider.notifier);
     final totalItemsInCart = cart.fold(0, (sum, item) => sum + item.kuantitas);
 
-    final categoriesAsync = ref.watch(categoryListProvider);
-    final List<String> kategoriOptions = [
-      'Semua',
-      ...categoriesAsync.maybeWhen(
-        data: (list) => list.map((k) => k.nama).toList(),
-        orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
-      )
-    ];
+    final kategoriOptions = ref.watch(categoryNamesProvider);
+
 
     return Scaffold(
       appBar: AppBar(

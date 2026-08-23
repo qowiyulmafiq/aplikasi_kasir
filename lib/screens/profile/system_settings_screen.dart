@@ -20,7 +20,7 @@ class SystemSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         children: [
           // TEMA APLIKASI
-          _buildSectionHeader('Tema Aplikasi'),
+          const SectionHeader(title: 'Tema Aplikasi'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape:
@@ -70,7 +70,7 @@ class SystemSettingsScreen extends ConsumerWidget {
           ),
 
           // TAMPILAN POS
-          _buildSectionHeader('Tampilan Katalog'),
+          const SectionHeader(title: 'Tampilan Katalog'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape:
@@ -132,7 +132,7 @@ class SystemSettingsScreen extends ConsumerWidget {
           ),
 
           // SISTEM & PEMELIHARAAN
-          _buildSectionHeader('Sistem & Pemeliharaan'),
+          const SectionHeader(title: 'Sistem & Pemeliharaan'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape:
@@ -198,7 +198,7 @@ class SystemSettingsScreen extends ConsumerWidget {
           ),
 
           // TENTANG
-          _buildSectionHeader('Tentang'),
+          const SectionHeader(title: 'Tentang'),
           const Card(
             child: ListTile(
               leading: Icon(Icons.info_outline),
@@ -211,9 +211,5 @@ class SystemSettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return SectionHeader(title: title);
   }
 }

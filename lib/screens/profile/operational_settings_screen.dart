@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/operational_settings_provider.dart';
 import '../../widgets/section_header.dart';
+import '../../widgets/custom_text_field.dart';
 
 class OperationalSettingsScreen extends ConsumerStatefulWidget {
+
   const OperationalSettingsScreen({super.key});
 
   @override
@@ -51,7 +53,7 @@ class _OperationalSettingsScreenState
         padding: const EdgeInsets.all(16.0),
         children: [
           // 1. PAJAK TRANSAKSI
-          _buildSectionHeader('Pajak & Biaya Transaksi'),
+          const SectionHeader(title: 'Pajak & Biaya Transaksi'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape: RoundedRectangleBorder(
@@ -117,22 +119,12 @@ class _OperationalSettingsScreenState
                         const SizedBox(width: 16),
                         SizedBox(
                           width: 110,
-                          child: TextField(
+                          child: CustomTextField(
                             controller: _taxController,
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
-                            decoration: InputDecoration(
-                              suffixText: '%',
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
+                            suffixText: '%',
                             onChanged: (val) {
                               final parsed = double.tryParse(val);
                               if (parsed != null && parsed >= 0) {
@@ -141,6 +133,7 @@ class _OperationalSettingsScreenState
                             },
                           ),
                         ),
+
                       ],
                     ),
                   ],
@@ -150,7 +143,7 @@ class _OperationalSettingsScreenState
           ),
 
           // 2. MANAJEMEN STOK
-          _buildSectionHeader('Manajemen Stok'),
+          const SectionHeader(title: 'Manajemen Stok'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape: RoundedRectangleBorder(
@@ -213,7 +206,7 @@ class _OperationalSettingsScreenState
           ),
 
           // 3. PENCETAKAN STRUK
-          _buildSectionHeader('Pencetakan Struk'),
+          const SectionHeader(title: 'Pencetakan Struk'),
           Card(
             margin: const EdgeInsets.only(bottom: 24),
             shape: RoundedRectangleBorder(
@@ -248,9 +241,5 @@ class _OperationalSettingsScreenState
         ],
       ),
     );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return SectionHeader(title: title);
   }
 }

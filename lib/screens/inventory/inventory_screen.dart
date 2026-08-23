@@ -24,15 +24,8 @@ class InventoryScreen extends ConsumerWidget {
     final selectedCategory = ref.watch(inventorySelectedCategoryProvider);
     final selectedSort = ref.watch(inventorySortOptionProvider);
     final systemSettings = ref.watch(systemSettingsNotifierProvider);
+    final kategoriOptions = ref.watch(categoryNamesProvider);
 
-    final categoriesAsync = ref.watch(categoryListProvider);
-    final List<String> kategoriOptions = [
-      'Semua',
-      ...categoriesAsync.maybeWhen(
-        data: (list) => list.map((k) => k.nama).toList(),
-        orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
-      )
-    ];
 
     return Scaffold(
       appBar: AppBar(

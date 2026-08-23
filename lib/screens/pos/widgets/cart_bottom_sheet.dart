@@ -4,8 +4,10 @@ import '../../../providers/cart_provider.dart';
 import '../../../providers/operational_settings_provider.dart';
 import '../../../utils/currency_formatter.dart';
 import '../../../utils/dialog_helper.dart';
+import '../../../widgets/custom_text_field.dart';
 
 class CartBottomSheet extends ConsumerStatefulWidget {
+
   const CartBottomSheet({super.key});
 
   @override
@@ -375,42 +377,28 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
               
               // INPUT NOMINAL & KEMBALIAN (Hanya Tampil Jika Tunai)
               if (_metodePembayaran == MetodePembayaran.tunai) ...[
-                TextField(
+                CustomTextField(
+                  label: 'Uang Dibayar Pelanggan',
                   controller: _bayarController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Uang Dibayar Pelanggan',
-                    hintText: '0',
-                    prefixText: 'Rp ',
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: isKurang
-                            ? Colors.red
-                            : Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    suffixIcon: _bayarController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () {
-                              setState(() {
-                                _bayarController.clear();
-                              });
-                            },
-                          )
-                        : null,
-                  ),
+                  hintText: '0',
+                  prefixText: 'Rp ',
+                  suffixIcon: _bayarController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            setState(() {
+                              _bayarController.clear();
+                            });
+                          },
+                        )
+                      : null,
                   onChanged: (val) {
                     setState(() {}); // Refresh kalkulasi kembalian
                   },
                 ),
                 const SizedBox(height: 8),
+
                 // PRESET CHIPS NOMINAL CEPAT
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

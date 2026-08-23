@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/category_provider.dart';
 import '../data/database/app_database.dart';
+import 'custom_text_field.dart';
 
 class CategoryManagementSheet extends ConsumerStatefulWidget {
+
   const CategoryManagementSheet({super.key});
 
   static void show(BuildContext context) {
@@ -53,14 +55,13 @@ class _CategoryManagementSheetState
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Edit Kategori'),
-        content: TextField(
+        content: CustomTextField(
+          label: 'Nama Kategori',
           controller: editController,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Nama Kategori',
-            hintText: 'Masukkan nama kategori',
-          ),
+          hintText: 'Masukkan nama kategori',
         ),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -161,20 +162,12 @@ class _CategoryManagementSheetState
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: CustomTextField(
                   controller: _addController,
-                  decoration: InputDecoration(
-                    hintText: 'Tambah kategori baru...',
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onSubmitted: (_) => _handleTambah(),
+                  hintText: 'Tambah kategori baru...',
                 ),
               ),
+
               const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: _handleTambah,

@@ -28,3 +28,15 @@ class CategoryList extends _$CategoryList {
     await db.deleteKategori(kategori.id, kategori.nama);
   }
 }
+
+@riverpod
+List<String> categoryNames(CategoryNamesRef ref) {
+  return [
+    'Semua',
+    ...ref.watch(categoryListProvider).maybeWhen(
+          data: (list) => list.map((k) => k.nama).toList(),
+          orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
+        ),
+  ];
+}
+

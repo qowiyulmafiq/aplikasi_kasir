@@ -11,8 +11,10 @@ import '../../data/database/app_database.dart';
 import '../../utils/dialog_helper.dart';
 import '../../utils/image_picker_helper.dart';
 import '../../widgets/product_image_widget.dart';
+import '../../widgets/custom_text_field.dart';
 
 class InventoryFormScreen extends ConsumerStatefulWidget {
+
   final BarangData? barangToEdit;
 
   const InventoryFormScreen({super.key, this.barangToEdit});
@@ -222,10 +224,11 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            TextFormField(
+            CustomTextField(
+              label: 'Nama Barang',
+              isRequired: true,
               controller: _namaController,
-              decoration: const InputDecoration(
-                  labelText: 'Nama Barang', hintText: 'Masukkan nama produk'),
+              hintText: 'Masukkan nama produk',
               validator: (value) => (value == null || value.trim().isEmpty)
                   ? 'Nama tidak boleh kosong'
                   : null,
@@ -234,10 +237,12 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
+            CustomTextField(
+              label: 'Harga Barang',
+              isRequired: true,
               controller: _hargaController,
-              decoration: const InputDecoration(
-                  labelText: 'Harga (Rp)', hintText: '0', prefixText: 'Rp '),
+              hintText: '0',
+              prefixText: 'Rp ',
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
@@ -253,38 +258,72 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
             const SizedBox(height: 16),
             Builder(
               builder: (context) {
-                final categoriesAsync = ref.watch(categoryListProvider);
-                final List<String> dynamicOptions = categoriesAsync.maybeWhen(
-                  data: (list) => list.map((k) => k.nama).toList(),
-                  orElse: () => ['Umum', 'Sembako', 'Makanan', 'Minuman', 'Lainnya'],
-                );
+                final dynamicOptions = ref
+                    .watch(categoryNamesProvider)
+                    .where((c) => c != 'Semua')
+                    .toList();
 
                 final String activeValue = dynamicOptions.contains(_selectedKategori)
                     ? _selectedKategori
                     : (dynamicOptions.isNotEmpty ? dynamicOptions.first : 'Umum');
 
-                return Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: activeValue,
-                        decoration: const InputDecoration(labelText: 'Kategori'),
-                        items: dynamicOptions
-                            .map((kategori) => DropdownMenuItem(
-                                value: kategori, child: Text(kategori)))
-                            .toList(),
-                        onChanged: (newValue) {
-                          if (newValue != null) {
-                            setState(() => _selectedKategori = newValue);
-                          }
-                        },
-                      ),
+                    Text(
+                      'Kategori Produk',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton.filledTonal(
-                      onPressed: () => CategoryManagementSheet.show(context),
-                      icon: const Icon(Icons.add),
-                      tooltip: 'Kelola / Tambah Kategori',
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            initialValue: activeValue,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.4),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant),
+                              ),
+                            ),
+                            items: dynamicOptions
+                                .map((kategori) => DropdownMenuItem(
+                                    value: kategori, child: Text(kategori)))
+                                .toList(),
+                            onChanged: (newValue) {
+                              if (newValue != null) {
+                                setState(() => _selectedKategori = newValue);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.filledTonal(
+                          onPressed: () => CategoryManagementSheet.show(context),
+                          icon: const Icon(Icons.add),
+                          tooltip: 'Kelola / Tambah Kategori',
+                        ),
+                      ],
                     ),
                   ],
                 );
@@ -294,30 +333,27 @@ class _InventoryFormScreenState extends ConsumerState<InventoryFormScreen> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
+                  child: CustomTextField(
+                    label: 'Stok Saat Ini',
                     controller: _stokController,
-                    decoration: const InputDecoration(
-                      labelText: 'Stok Saat Ini',
-                      hintText: '0',
-                    ),
+                    hintText: '0',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextFormField(
+                  child: CustomTextField(
+                    label: 'Stok Minimal Warning',
                     controller: _stokMinimalController,
-                    decoration: const InputDecoration(
-                      labelText: 'Stok Minimal (Alert)',
-                      hintText: '5',
-                    ),
+                    hintText: '5',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
