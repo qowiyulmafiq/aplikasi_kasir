@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Mengabaikan konfigurasi AI Ponytail agar tidak masuk ke GitHub
+.agents/rules/AGENTS.md
