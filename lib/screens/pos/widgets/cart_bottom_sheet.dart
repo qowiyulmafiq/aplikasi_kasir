@@ -519,183 +519,14 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
                 child: ElevatedButton.icon(
                   onPressed: isKurang
                       ? null
-                      : () async {
-                          if (_metodePembayaran == MetodePembayaran.tunai && 
-                              uangDibayar < grandTotal &&
-                              _bayarController.text.isNotEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Nominal uang kurang!'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          // Pastikan kasir mengisi nominal jika metode Tunai
-                          if (_metodePembayaran == MetodePembayaran.tunai && _bayarController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Masukkan nominal uang yang dibayar!'),
-                                backgroundColor: Colors.orange,
-                              ),
-                            );
-                            return;
-                          }
-
-                          final nominalBayarAkhir =
-                              uangDibayar == 0 ? grandTotal : uangDibayar;
-                          final kembalianAkhir =
-                              nominalBayarAkhir - grandTotal;
-
-                          await cartNotifier.checkout(opSettings);
-
-                          if (context.mounted) {
-                            Navigator.pop(context); // Tutup bottom sheet
-
-                            if (opSettings.autoPrintReceipt) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
-                                      'Mencetak struk transaksi secara otomatis...'),
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-
-                            // Dialog Struk Konfirmasi Berhasil
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                title: const Row(
-                                  children: [
-                                    Icon(Icons.check_circle,
-                                        color: Colors.green, size: 28),
-                                    SizedBox(width: 8),
-                                    Text('Transaksi Berhasil!'),
-                                  ],
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Detail Transaksi:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text('Metode:'),
-                                        Text(
-                                          _metodePembayaran == MetodePembayaran.qris 
-                                              ? 'QRIS / Transfer' 
-                                              : 'Tunai',
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                    if (opSettings.enableTax) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text('Subtotal:'),
-                                          Text(CurrencyFormatter.formatRupiah(subtotal)),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Pajak (${opSettings.taxPercentage.toStringAsFixed(opSettings.taxPercentage.truncateToDouble() == opSettings.taxPercentage ? 0 : 1)}%):'),
-                                          Text(CurrencyFormatter.formatRupiah(taxAmount)),
-                                        ],
-                                      ),
-                                    ],
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text('Total:'),
-                                        Text(CurrencyFormatter.formatRupiah(grandTotal),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                    if (_metodePembayaran == MetodePembayaran.tunai) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text('Dibayar:'),
-                                          Text(CurrencyFormatter.formatRupiah(nominalBayarAkhir)),
-                                        ],
-                                      ),
-                                      const Divider(height: 16),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            'Kembalian:',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                          Text(
-                                            CurrencyFormatter.formatRupiah(kembalianAkhir),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color:
-                                                  Theme.of(context).colorScheme.primary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: const Text('Fitur cetak struk segera hadir!'),
-                                          backgroundColor: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('Cetak Struk'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.primary,
-                                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                    child: const Text('Selesai'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        },
+                      : () => _processCheckout(
+                            opSettings: opSettings,
+                            cartNotifier: cartNotifier,
+                            grandTotal: grandTotal,
+                            subtotal: subtotal,
+                            taxAmount: taxAmount,
+                            uangDibayar: uangDibayar,
+                          ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -717,4 +548,191 @@ class _CartBottomSheetState extends ConsumerState<CartBottomSheet> {
       ),
     );
   }
+
+  Future<void> _processCheckout({
+    required OperationalSettings opSettings,
+    required Cart cartNotifier,
+    required int grandTotal,
+    required int subtotal,
+    required int taxAmount,
+    required int uangDibayar,
+  }) async {
+    if (_metodePembayaran == MetodePembayaran.tunai) {
+      if (_bayarController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Masukkan nominal uang yang dibayar!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+      if (uangDibayar < grandTotal) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Nominal uang kurang!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
+    final nominalBayarAkhir =
+        _metodePembayaran == MetodePembayaran.qris || uangDibayar == 0
+            ? grandTotal
+            : uangDibayar;
+    final kembalianAkhir = nominalBayarAkhir - grandTotal;
+
+    await cartNotifier.checkout(opSettings);
+
+    if (!mounted) return;
+    Navigator.pop(context);
+
+    if (opSettings.autoPrintReceipt) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Mencetak struk transaksi secara otomatis...'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
+    _showSuccessDialog(
+      opSettings: opSettings,
+      subtotal: subtotal,
+      taxAmount: taxAmount,
+      grandTotal: grandTotal,
+      nominalBayarAkhir: nominalBayarAkhir,
+      kembalianAkhir: kembalianAkhir,
+    );
+  }
+
+  void _showSuccessDialog({
+    required OperationalSettings opSettings,
+    required int subtotal,
+    required int taxAmount,
+    required int grandTotal,
+    required int nominalBayarAkhir,
+    required int kembalianAkhir,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 28),
+            SizedBox(width: 8),
+            Text('Transaksi Berhasil!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Detail Transaksi:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Metode:'),
+                Text(
+                  _metodePembayaran == MetodePembayaran.qris
+                      ? 'QRIS / Transfer'
+                      : 'Tunai',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            if (opSettings.enableTax) ...[
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Subtotal:'),
+                  Text(CurrencyFormatter.formatRupiah(subtotal)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      'Pajak (${opSettings.taxPercentage.toStringAsFixed(opSettings.taxPercentage.truncateToDouble() == opSettings.taxPercentage ? 0 : 1)}%):'),
+                  Text(CurrencyFormatter.formatRupiah(taxAmount)),
+                ],
+              ),
+            ],
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Total:'),
+                Text(CurrencyFormatter.formatRupiah(grandTotal),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            if (_metodePembayaran == MetodePembayaran.tunai) ...[
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Dibayar:'),
+                  Text(CurrencyFormatter.formatRupiah(nominalBayarAkhir)),
+                ],
+              ),
+              const Divider(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Kembalian:',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  Text(
+                    CurrencyFormatter.formatRupiah(kembalianAkhir),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Fitur cetak struk segera hadir!'),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+              );
+            },
+            child: const Text('Cetak Struk'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+            child: const Text('Selesai'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
