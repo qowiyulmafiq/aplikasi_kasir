@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../providers/store_settings_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../widgets/custom_text_field.dart';
+
 
 
 class StoreSettingsScreen extends ConsumerStatefulWidget {
@@ -59,6 +61,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(storeSettingsNotifierProvider);
+    final userProfile = ref.watch(userProfileNotifierProvider);
     final isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
@@ -171,7 +174,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               child: Container(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: Center(
-                  child: _buildReceiptPreview(settings),
+                  child: _buildReceiptPreview(settings, userProfile),
                 ),
               ),
             ),
@@ -224,7 +227,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                               child: Center(
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 24.0),
-                                  child: _buildReceiptPreview(settings),
+                                  child: _buildReceiptPreview(settings, userProfile),
                                 ),
                               ),
                             ),
@@ -253,7 +256,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   }
 
 
-  Widget _buildReceiptPreview(StoreSettings settings) {
+  Widget _buildReceiptPreview(StoreSettings settings, UserProfile userProfile) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final now = DateTime.now();
     final double paperWidth = settings.ukuranKertas == '58mm' ? 250 : 350;
@@ -323,9 +326,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               ],
             ),
             if (settings.tampilkanNamaKasir)
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Kasir: Admin', style: TextStyle(fontSize: 10)),
+                child: Text('Kasir: ${userProfile.namaKasir}',
+                    style: const TextStyle(fontSize: 10)),
               ),
 
             const SizedBox(height: 4),
