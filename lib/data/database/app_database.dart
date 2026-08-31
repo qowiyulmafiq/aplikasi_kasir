@@ -132,6 +132,56 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  // Google Sheets Sync Helpers
+  Future<List<BarangData>> getUnsyncedBarang() {
+    return (select(barang)..where((b) => b.isSynced.equals(false))).get();
+  }
+
+  Future<void> markBarangAsSynced(List<int> ids) async {
+    if (ids.isEmpty) return;
+    await (update(barang)..where((b) => b.id.isIn(ids)))
+        .write(const BarangCompanion(isSynced: Value(true)));
+  }
+
+  Future<void> upsertBarangFromSync(List<BarangCompanion> items) async {
+    await transaction(() async {
+      final existingCategories = (await select(kategori).get()).map((k) => k.nama.toLowerCase()).toSet();
+      
+      for (final companion in items) {
+        final categoryName = companion.kategori.value;
+        if (categoryName.isNotEmpty && !existingCategories.contains(categoryName.toLowerCase())) {
+          await into(kategori).insert(KategoriCompanion.insert(nama: categoryName));
+          existingCategories.add(categoryName.toLowerCase());
+        }
+
+        BarangData? existing;
+        if (companion.id.present && companion.id.value > 0) {
+          existing = await (select(barang)..where((b) => b.id.equals(companion.id.value))).getSingleOrNull();
+        }
+        existing ??= await (select(barang)..where((b) => b.nama.equals(companion.nama.value))).getSingleOrNull();
+
+        final targetItem = existing;
+        if (targetItem != null) {
+          await (update(barang)..where((b) => b.id.equals(targetItem.id))).write(
+            companion.copyWith(
+              id: Value(targetItem.id),
+              isSynced: const Value(true),
+              updatedAt: Value(DateTime.now()),
+            ),
+          );
+        } else {
+          await into(barang).insert(
+            companion.copyWith(
+              isSynced: const Value(true),
+              createdAt: Value(DateTime.now()),
+              updatedAt: Value(DateTime.now()),
+            ),
+          );
+        }
+      }
+    });
+  }
+
   // Mendengarkan riwayat transaksi
   Stream<List<TransaksiData>> watchAllTransaksi() {
     return select(transaksi).watch();

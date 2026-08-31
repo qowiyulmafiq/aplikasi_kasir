@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/system_settings_provider.dart';
 import '../../widgets/section_header.dart';
 
+import '../../widgets/google_sheets_sync_dialog.dart';
+
 class SystemSettingsScreen extends ConsumerWidget {
   const SystemSettingsScreen({super.key});
 
@@ -141,6 +143,17 @@ class SystemSettingsScreen extends ConsumerWidget {
               children: [
                 ListTile(
                   leading: CircleAvatar(
+                    backgroundColor: Colors.green.withValues(alpha: 0.2),
+                    child: const Icon(Icons.sync_alt, color: Colors.green),
+                  ),
+                  title: const Text('Sinkronisasi Google Sheets'),
+                  subtitle: const Text('Sinkronkan barang ke Google Spreadsheet'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => GoogleSheetsSyncDialog.show(context),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: CircleAvatar(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,
                     child: Icon(Icons.cloud_upload,
@@ -157,6 +170,7 @@ class SystemSettingsScreen extends ConsumerWidget {
                     );
                   },
                 ),
+
                 const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
