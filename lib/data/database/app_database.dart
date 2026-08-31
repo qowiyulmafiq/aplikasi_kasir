@@ -147,8 +147,12 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       final existingCategories = (await select(kategori).get()).map((k) => k.nama.toLowerCase()).toSet();
       
+      final existingList = await select(barang).get();
+      final Map<int, BarangData> idMap = {for (final b in existingList) b.id: b};
+      final Map<String, BarangData> nameMap = {for (final b in existingList) b.nama.toLowerCase().trim(): b};
+
       for (final companion in items) {
-        final categoryName = companion.kategori.value;
+        final categoryName = companion.kategori.value.trim();
         if (categoryName.isNotEmpty && !existingCategories.contains(categoryName.toLowerCase())) {
           await into(kategori).insert(KategoriCompanion.insert(nama: categoryName));
           existingCategories.add(categoryName.toLowerCase());
@@ -156,9 +160,9 @@ class AppDatabase extends _$AppDatabase {
 
         BarangData? existing;
         if (companion.id.present && companion.id.value > 0) {
-          existing = await (select(barang)..where((b) => b.id.equals(companion.id.value))).getSingleOrNull();
+          existing = idMap[companion.id.value];
         }
-        existing ??= await (select(barang)..where((b) => b.nama.equals(companion.nama.value))).getSingleOrNull();
+        existing ??= nameMap[companion.nama.value.toLowerCase().trim()];
 
         final targetItem = existing;
         if (targetItem != null) {
@@ -170,13 +174,16 @@ class AppDatabase extends _$AppDatabase {
             ),
           );
         } else {
-          await into(barang).insert(
+          final insertedId = await into(barang).insert(
             companion.copyWith(
               isSynced: const Value(true),
               createdAt: Value(DateTime.now()),
               updatedAt: Value(DateTime.now()),
             ),
           );
+          final newRecord = await (select(barang)..where((b) => b.id.equals(insertedId))).getSingle();
+          idMap[newRecord.id] = newRecord;
+          nameMap[newRecord.nama.toLowerCase().trim()] = newRecord;
         }
       }
     });

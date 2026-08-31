@@ -18,10 +18,12 @@ class GoogleSheetsSyncDialog extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<GoogleSheetsSyncDialog> createState() => _GoogleSheetsSyncDialogState();
+  ConsumerState<GoogleSheetsSyncDialog> createState() =>
+      _GoogleSheetsSyncDialogState();
 }
 
-class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog> {
+class _GoogleSheetsSyncDialogState
+    extends ConsumerState<GoogleSheetsSyncDialog> {
   late TextEditingController _urlController;
 
   @override
@@ -38,7 +40,8 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
   }
 
   void _copyTemplateCode() {
-    Clipboard.setData(const ClipboardData(text: GoogleSheetsService.appsScriptTemplate));
+    Clipboard.setData(
+        const ClipboardData(text: GoogleSheetsService.appsScriptTemplate));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Kode Apps Script berhasil disalin ke Clipboard!'),
@@ -105,7 +108,8 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
               children: [
                 CircleAvatar(
                   backgroundColor: colorScheme.primaryContainer,
-                  child: Icon(Icons.sync_alt, color: colorScheme.onPrimaryContainer),
+                  child: Icon(Icons.sync_alt,
+                      color: colorScheme.onPrimaryContainer),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -149,11 +153,13 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, size: 20, color: colorScheme.primary),
+                        Icon(Icons.info_outline,
+                            size: 20, color: colorScheme.primary),
                         const SizedBox(width: 8),
                         const Text(
                           'Panduan Setup (Hanya 1x Saja):',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ],
                     ),
@@ -216,16 +222,19 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
                 decoration: BoxDecoration(
                   color: colorScheme.errorContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
+                  border: Border.all(
+                      color: colorScheme.error.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline, color: colorScheme.onErrorContainer, size: 20),
+                    Icon(Icons.error_outline,
+                        color: colorScheme.onErrorContainer, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         syncState.lastError!,
-                        style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 13),
+                        style: TextStyle(
+                            color: colorScheme.onErrorContainer, fontSize: 13),
                       ),
                     ),
                   ],
@@ -239,16 +248,20 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5)),
+                  border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: colorScheme.onPrimaryContainer, size: 20),
+                    Icon(Icons.check_circle_outline,
+                        color: colorScheme.onPrimaryContainer, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         syncState.lastMessage!,
-                        style: TextStyle(color: colorScheme.onPrimaryContainer, fontSize: 13),
+                        style: TextStyle(
+                            color: colorScheme.onPrimaryContainer,
+                            fontSize: 13),
                       ),
                     ),
                   ],
@@ -258,7 +271,7 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
             // TOMBOL SINKRONISASI SEKARANG
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 56,
               child: ElevatedButton.icon(
                 onPressed: syncState.isSyncing ? null : _handleSaveAndSync,
                 style: ElevatedButton.styleFrom(
@@ -292,4 +305,3 @@ class _GoogleSheetsSyncDialogState extends ConsumerState<GoogleSheetsSyncDialog>
     );
   }
 }
-

@@ -113,6 +113,13 @@ function doPost(e) {
 }
 ''';
 
+  static int _parseNumber(dynamic input, {int defaultValue = 0}) {
+    if (input == null) return defaultValue;
+    final str = input.toString().replaceAll(RegExp(r'[^\d]'), '');
+    if (str.isEmpty) return defaultValue;
+    return int.tryParse(str) ?? defaultValue;
+  }
+
   static Future<http.Response> _fetchWithRedirects(
     String url, {
     String method = 'GET',
@@ -127,14 +134,14 @@ function doPost(e) {
       if (body != null) request.body = body;
       request.followRedirects = false;
 
-      final streamedResponse = await client.send(request);
+      final streamedResponse = await client.send(request).timeout(const Duration(seconds: 15));
       if (streamedResponse.statusCode == 302 ||
           streamedResponse.statusCode == 301 ||
           streamedResponse.statusCode == 307 ||
           streamedResponse.statusCode == 308) {
         final redirectUrl = streamedResponse.headers['location'];
         if (redirectUrl != null) {
-          final redirectedResponse = await client.get(Uri.parse(redirectUrl));
+          final redirectedResponse = await client.get(Uri.parse(redirectUrl)).timeout(const Duration(seconds: 15));
           return redirectedResponse;
         }
       }
@@ -173,15 +180,18 @@ function doPost(e) {
           for (final raw in rawList) {
             if (raw is Map) {
               final nama = (raw['nama'] ?? raw['Nama'] ?? '').toString().trim();
-              if (nama.isEmpty) continue;
+              if (nama.isEmpty) continue; // Skip blank/empty rows
 
               final rawId = raw['id'] ?? raw['ID'];
-              final intId = rawId != null ? (int.tryParse(rawId.toString()) ?? 0) : 0;
+              final intId = _parseNumber(rawId, defaultValue: 0);
 
               final kategori = (raw['kategori'] ?? raw['Kategori'] ?? 'Umum').toString().trim();
-              final harga = int.tryParse((raw['harga'] ?? raw['Harga'] ?? '0').toString()) ?? 0;
-              final stok = int.tryParse((raw['stok'] ?? raw['Stok'] ?? '0').toString()) ?? 0;
-              final stokMinimal = int.tryParse((raw['stokminimal'] ?? raw['stokMinimal'] ?? raw['Stok Minimal'] ?? '5').toString()) ?? 5;
+              final harga = _parseNumber(raw['harga'] ?? raw['Harga'], defaultValue: 0);
+              final stok = _parseNumber(raw['stok'] ?? raw['Stok'], defaultValue: 0);
+              final stokMinimal = _parseNumber(
+                raw['stokminimal'] ?? raw['stokMinimal'] ?? raw['Stok Minimal'],
+                defaultValue: 5,
+              );
               final kelolaStokVal = raw['kelolastok'] ?? raw['kelolaStok'] ?? raw['Kelola Stok'];
               final bool kelolaStok = kelolaStokVal is bool 
                   ? kelolaStokVal 
@@ -257,6 +267,7 @@ function doPost(e) {
       );
     }
   }
+
 
 }
 

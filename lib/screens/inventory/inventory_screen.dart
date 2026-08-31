@@ -9,6 +9,7 @@ import '../../services/excel_import_service.dart';
 import '../../widgets/inventory_item_card.dart';
 
 import '../../providers/category_provider.dart';
+import '../../providers/google_sheets_provider.dart';
 import '../../widgets/category_management_sheet.dart';
 import '../../widgets/category_quick_picker_sheet.dart';
 
@@ -35,6 +36,11 @@ class InventoryScreen extends ConsumerWidget {
         ),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sync_alt, color: Colors.green),
+            tooltip: 'Sync Google Sheets',
+            onPressed: () => _handleQuickSync(context, ref),
+          ),
           IconButton(
             icon: const Icon(Icons.category_outlined),
             tooltip: 'Kelola Kategori',
@@ -341,4 +347,37 @@ class InventoryScreen extends ConsumerWidget {
       }
     }
   }
+
+  Future<void> _handleQuickSync(BuildContext context, WidgetRef ref) async {
+    final syncState = ref.read(googleSheetsSyncProvider);
+    if (syncState.webAppUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('URL Google Sheets belum diatur. Silakan atur di menu Pengaturan -> Sistem & Tampilan.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Menyinkronkan data dengan Google Sheets...'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    final result = await ref.read(googleSheetsSyncProvider.notifier).syncNow();
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.message),
+        backgroundColor: result.success ? Colors.green : Colors.red,
+      ),
+    );
+  }
 }
+
+
