@@ -43,12 +43,18 @@ class Kategori extends Table {
   TextColumn get nama => text().withLength(min: 1, max: 100)();
 }
 
-@DriftDatabase(tables: [Barang, Transaksi, DetailTransaksi, Kategori])
+class DeletedBarang extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get barangId => integer()();
+  DateTimeColumn get deletedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [Barang, Transaksi, DetailTransaksi, Kategori, DeletedBarang])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -61,6 +67,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 3) {
           await m.createTable(kategori);
+        }
+        if (from < 4) {
+          await m.createTable(deletedBarang);
         }
       },
       beforeOpen: (details) async {
@@ -129,10 +138,21 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       await (delete(detailTransaksi)..where((d) => d.idBarang.equals(barangData.id))).go();
       await (delete(barang)..where((b) => b.id.equals(barangData.id))).go();
+      await into(deletedBarang).insert(DeletedBarangCompanion.insert(barangId: barangData.id));
     });
   }
 
   // Google Sheets Sync Helpers
+  Future<List<int>> getDeletedBarangIds() async {
+    final list = await select(deletedBarang).get();
+    return list.map((e) => e.barangId).toList();
+  }
+
+  Future<void> clearDeletedBarang(List<int> barangIds) async {
+    if (barangIds.isEmpty) return;
+    await (delete(deletedBarang)..where((d) => d.barangId.isIn(barangIds))).go();
+  }
+
   Future<List<BarangData>> getUnsyncedBarang() {
     return (select(barang)..where((b) => b.isSynced.equals(false))).get();
   }

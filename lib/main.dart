@@ -25,3 +25,5 @@ class PosApp extends ConsumerWidget {
     );
   }
 }
+
+//TODO Perbaiki : Data tidak terhapus dalam google sheets

@@ -72,11 +72,26 @@ function doPost(e) {
     var postData = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
     var contents = JSON.parse(postData);
     var items = contents.items || [];
+    var deletedIds = contents.deletedIds || [];
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = sheet.getDataRange().getValues();
     
     if (data.length === 0 || data[0].length === 0 || !data[0][0]) {
       sheet.appendRow(["ID", "Nama", "Kategori", "Harga", "Stok", "Stok Minimal", "Kelola Stok"]);
+      data = sheet.getDataRange().getValues();
+    }
+    
+    if (deletedIds.length > 0) {
+      var delMap = {};
+      for (var d = 0; d < deletedIds.length; d++) {
+        delMap[String(deletedIds[d]).trim()] = true;
+      }
+      for (var i = data.length - 1; i >= 1; i--) {
+        var rowId = String(data[i][0]).trim();
+        if (delMap[rowId]) {
+          sheet.deleteRow(i + 1);
+        }
+      }
       data = sheet.getDataRange().getValues();
     }
     

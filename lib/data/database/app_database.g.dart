@@ -2,7 +2,7 @@
 
 part of 'app_database.dart';
 
-// ignore_for_file: type=lint, unnecessary_null_comparison, unnecessary_non_null_assertion
+// ignore_for_file: type=lint
 class $BarangTable extends Barang with TableInfo<$BarangTable, BarangData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -1343,6 +1343,223 @@ class KategoriCompanion extends UpdateCompanion<KategoriData> {
   }
 }
 
+class $DeletedBarangTable extends DeletedBarang
+    with TableInfo<$DeletedBarangTable, DeletedBarangData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeletedBarangTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _barangIdMeta =
+      const VerificationMeta('barangId');
+  @override
+  late final GeneratedColumn<int> barangId = GeneratedColumn<int>(
+      'barang_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, barangId, deletedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'deleted_barang';
+  @override
+  VerificationContext validateIntegrity(Insertable<DeletedBarangData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('barang_id')) {
+      context.handle(_barangIdMeta,
+          barangId.isAcceptableOrUnknown(data['barang_id']!, _barangIdMeta));
+    } else if (isInserting) {
+      context.missing(_barangIdMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeletedBarangData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeletedBarangData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      barangId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}barang_id'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at'])!,
+    );
+  }
+
+  @override
+  $DeletedBarangTable createAlias(String alias) {
+    return $DeletedBarangTable(attachedDatabase, alias);
+  }
+}
+
+class DeletedBarangData extends DataClass
+    implements Insertable<DeletedBarangData> {
+  final int id;
+  final int barangId;
+  final DateTime deletedAt;
+  const DeletedBarangData(
+      {required this.id, required this.barangId, required this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['barang_id'] = Variable<int>(barangId);
+    map['deleted_at'] = Variable<DateTime>(deletedAt);
+    return map;
+  }
+
+  DeletedBarangCompanion toCompanion(bool nullToAbsent) {
+    return DeletedBarangCompanion(
+      id: Value(id),
+      barangId: Value(barangId),
+      deletedAt: Value(deletedAt),
+    );
+  }
+
+  factory DeletedBarangData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeletedBarangData(
+      id: serializer.fromJson<int>(json['id']),
+      barangId: serializer.fromJson<int>(json['barangId']),
+      deletedAt: serializer.fromJson<DateTime>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'barangId': serializer.toJson<int>(barangId),
+      'deletedAt': serializer.toJson<DateTime>(deletedAt),
+    };
+  }
+
+  DeletedBarangData copyWith({int? id, int? barangId, DateTime? deletedAt}) =>
+      DeletedBarangData(
+        id: id ?? this.id,
+        barangId: barangId ?? this.barangId,
+        deletedAt: deletedAt ?? this.deletedAt,
+      );
+  DeletedBarangData copyWithCompanion(DeletedBarangCompanion data) {
+    return DeletedBarangData(
+      id: data.id.present ? data.id.value : this.id,
+      barangId: data.barangId.present ? data.barangId.value : this.barangId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeletedBarangData(')
+          ..write('id: $id, ')
+          ..write('barangId: $barangId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, barangId, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeletedBarangData &&
+          other.id == this.id &&
+          other.barangId == this.barangId &&
+          other.deletedAt == this.deletedAt);
+}
+
+class DeletedBarangCompanion extends UpdateCompanion<DeletedBarangData> {
+  final Value<int> id;
+  final Value<int> barangId;
+  final Value<DateTime> deletedAt;
+  const DeletedBarangCompanion({
+    this.id = const Value.absent(),
+    this.barangId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+  });
+  DeletedBarangCompanion.insert({
+    this.id = const Value.absent(),
+    required int barangId,
+    this.deletedAt = const Value.absent(),
+  }) : barangId = Value(barangId);
+  static Insertable<DeletedBarangData> custom({
+    Expression<int>? id,
+    Expression<int>? barangId,
+    Expression<DateTime>? deletedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (barangId != null) 'barang_id': barangId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+    });
+  }
+
+  DeletedBarangCompanion copyWith(
+      {Value<int>? id, Value<int>? barangId, Value<DateTime>? deletedAt}) {
+    return DeletedBarangCompanion(
+      id: id ?? this.id,
+      barangId: barangId ?? this.barangId,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (barangId.present) {
+      map['barang_id'] = Variable<int>(barangId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeletedBarangCompanion(')
+          ..write('id: $id, ')
+          ..write('barangId: $barangId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1351,12 +1568,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DetailTransaksiTable detailTransaksi =
       $DetailTransaksiTable(this);
   late final $KategoriTable kategori = $KategoriTable(this);
+  late final $DeletedBarangTable deletedBarang = $DeletedBarangTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [barang, transaksi, detailTransaksi, kategori];
+      [barang, transaksi, detailTransaksi, kategori, deletedBarang];
 }
 
 typedef $$BarangTableCreateCompanionBuilder = BarangCompanion Function({
@@ -2408,6 +2626,143 @@ typedef $$KategoriTableProcessedTableManager = ProcessedTableManager<
     (KategoriData, BaseReferences<_$AppDatabase, $KategoriTable, KategoriData>),
     KategoriData,
     PrefetchHooks Function()>;
+typedef $$DeletedBarangTableCreateCompanionBuilder = DeletedBarangCompanion
+    Function({
+  Value<int> id,
+  required int barangId,
+  Value<DateTime> deletedAt,
+});
+typedef $$DeletedBarangTableUpdateCompanionBuilder = DeletedBarangCompanion
+    Function({
+  Value<int> id,
+  Value<int> barangId,
+  Value<DateTime> deletedAt,
+});
+
+class $$DeletedBarangTableFilterComposer
+    extends Composer<_$AppDatabase, $DeletedBarangTable> {
+  $$DeletedBarangTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get barangId => $composableBuilder(
+      column: $table.barangId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$DeletedBarangTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeletedBarangTable> {
+  $$DeletedBarangTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get barangId => $composableBuilder(
+      column: $table.barangId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DeletedBarangTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeletedBarangTable> {
+  $$DeletedBarangTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get barangId =>
+      $composableBuilder(column: $table.barangId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$DeletedBarangTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DeletedBarangTable,
+    DeletedBarangData,
+    $$DeletedBarangTableFilterComposer,
+    $$DeletedBarangTableOrderingComposer,
+    $$DeletedBarangTableAnnotationComposer,
+    $$DeletedBarangTableCreateCompanionBuilder,
+    $$DeletedBarangTableUpdateCompanionBuilder,
+    (
+      DeletedBarangData,
+      BaseReferences<_$AppDatabase, $DeletedBarangTable, DeletedBarangData>
+    ),
+    DeletedBarangData,
+    PrefetchHooks Function()> {
+  $$DeletedBarangTableTableManager(_$AppDatabase db, $DeletedBarangTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeletedBarangTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeletedBarangTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DeletedBarangTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> barangId = const Value.absent(),
+            Value<DateTime> deletedAt = const Value.absent(),
+          }) =>
+              DeletedBarangCompanion(
+            id: id,
+            barangId: barangId,
+            deletedAt: deletedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int barangId,
+            Value<DateTime> deletedAt = const Value.absent(),
+          }) =>
+              DeletedBarangCompanion.insert(
+            id: id,
+            barangId: barangId,
+            deletedAt: deletedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DeletedBarangTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DeletedBarangTable,
+    DeletedBarangData,
+    $$DeletedBarangTableFilterComposer,
+    $$DeletedBarangTableOrderingComposer,
+    $$DeletedBarangTableAnnotationComposer,
+    $$DeletedBarangTableCreateCompanionBuilder,
+    $$DeletedBarangTableUpdateCompanionBuilder,
+    (
+      DeletedBarangData,
+      BaseReferences<_$AppDatabase, $DeletedBarangTable, DeletedBarangData>
+    ),
+    DeletedBarangData,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2420,4 +2775,6 @@ class $AppDatabaseManager {
       $$DetailTransaksiTableTableManager(_db, _db.detailTransaksi);
   $$KategoriTableTableManager get kategori =>
       $$KategoriTableTableManager(_db, _db.kategori);
+  $$DeletedBarangTableTableManager get deletedBarang =>
+      $$DeletedBarangTableTableManager(_db, _db.deletedBarang);
 }

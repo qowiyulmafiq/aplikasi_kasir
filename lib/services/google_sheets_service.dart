@@ -57,6 +57,7 @@ function doPost(e) {
     var postData = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
     var contents = JSON.parse(postData);
     var items = contents.items || [];
+    var deletedIds = contents.deletedIds || [];
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = sheet.getDataRange().getValues();
     
@@ -65,6 +66,21 @@ function doPost(e) {
       data = sheet.getDataRange().getValues();
     }
     
+    // Process deletion first if deletedIds provided
+    if (deletedIds.length > 0) {
+      var delMap = {};
+      for (var d = 0; d < deletedIds.length; d++) {
+        delMap[String(deletedIds[d]).trim()] = true;
+      }
+      for (var i = data.length - 1; i >= 1; i--) {
+        var rowId = String(data[i][0]).trim();
+        if (delMap[rowId]) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      data = sheet.getDataRange().getValues();
+    }
+
     var existingIds = {};
     var existingNames = {};
     for (var i = 1; i < data.length; i++) {
@@ -151,8 +167,8 @@ function doPost(e) {
     }
   }
 
-  /// Performs PULL first (fetching remote sheet data and updating local database),
-  /// then PUSH second (sending remaining unsynced local items to Web App).
+  /// Performs PUSH first (sending unsynced local items & deleted items to Web App),
+  /// then PULL second (fetching remote sheet data and updating local database).
   static Future<GoogleSheetsSyncResult> performFullSync({
     required String webAppUrl,
     required AppDatabase db,
@@ -169,13 +185,50 @@ function doPost(e) {
       int pushedCount = 0;
       int pulledCount = 0;
 
-      // 1. PULL FIRST: Fetch all items from Google Sheet & update local DB
+      // 1. PUSH FIRST: Send all local items & deleted items to Google Sheets
+      final itemsToPush = await (db.select(db.barang)).get();
+      final deletedIdsToPush = await db.getDeletedBarangIds();
+
+      if (itemsToPush.isNotEmpty || deletedIdsToPush.isNotEmpty) {
+        final payload = {
+          'action': 'push',
+          'items': itemsToPush.map((b) => {
+            'id': b.id,
+            'nama': b.nama,
+            'kategori': b.kategori,
+            'harga': b.harga,
+            'stok': b.stok,
+            'stokMinimal': b.stokMinimal,
+            'kelolaStok': b.kelolaStok,
+          }).toList(),
+          'deletedIds': deletedIdsToPush,
+        };
+
+        final response = await _fetchWithRedirects(
+          cleanUrl,
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(payload),
+        );
+
+        if (response.statusCode == 200) {
+          final resJson = jsonDecode(response.body);
+          if (resJson['status'] == 'success') {
+            await db.markBarangAsSynced(itemsToPush.map((e) => e.id).toList());
+            await db.clearDeletedBarang(deletedIdsToPush);
+            pushedCount = itemsToPush.length;
+          }
+        }
+      }
+
+      // 2. PULL SECOND: Fetch remote items from Google Sheet
       final getResponse = await _fetchWithRedirects(cleanUrl, method: 'GET');
       if (getResponse.statusCode == 200) {
         final resJson = jsonDecode(getResponse.body);
         if (resJson['status'] == 'success' && resJson['data'] is List) {
           final List rawList = resJson['data'];
           final List<BarangCompanion> remoteCompanions = [];
+          final deletedSet = (await db.getDeletedBarangIds()).toSet();
 
           for (final raw in rawList) {
             if (raw is Map) {
@@ -184,6 +237,9 @@ function doPost(e) {
 
               final rawId = raw['id'] ?? raw['ID'];
               final intId = _parseNumber(rawId, defaultValue: 0);
+
+              // Skip item if it was marked as deleted locally
+              if (intId > 0 && deletedSet.contains(intId)) continue;
 
               final kategori = (raw['kategori'] ?? raw['Kategori'] ?? 'Umum').toString().trim();
               final harga = _parseNumber(raw['harga'] ?? raw['Harga'], defaultValue: 0);
@@ -213,43 +269,6 @@ function doPost(e) {
           if (remoteCompanions.isNotEmpty) {
             await db.upsertBarangFromSync(remoteCompanions);
             pulledCount = remoteCompanions.length;
-          }
-        }
-      }
-
-      // 2. PUSH SECOND: Fetch remaining unsynced local items (e.g. added locally while offline)
-      var itemsToPush = await db.getUnsyncedBarang();
-      // If local DB has items but Google Sheet is totally empty (pulledCount == 0), fallback to pushing all local items
-      if (itemsToPush.isEmpty && pulledCount == 0) {
-        itemsToPush = await (db.select(db.barang)).get();
-      }
-
-      if (itemsToPush.isNotEmpty) {
-        final payload = {
-          'action': 'push',
-          'items': itemsToPush.map((b) => {
-            'id': b.id,
-            'nama': b.nama,
-            'kategori': b.kategori,
-            'harga': b.harga,
-            'stok': b.stok,
-            'stokMinimal': b.stokMinimal,
-            'kelolaStok': b.kelolaStok,
-          }).toList(),
-        };
-
-        final response = await _fetchWithRedirects(
-          cleanUrl,
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(payload),
-        );
-
-        if (response.statusCode == 200) {
-          final resJson = jsonDecode(response.body);
-          if (resJson['status'] == 'success') {
-            await db.markBarangAsSynced(itemsToPush.map((e) => e.id).toList());
-            pushedCount = itemsToPush.length;
           }
         }
       }
