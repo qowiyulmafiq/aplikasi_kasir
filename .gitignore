@@ -46,3 +46,4 @@ app.*.map.json
 
 # Mengabaikan konfigurasi AI Ponytail agar tidak masuk ke GitHub
 .agents/rules/AGENTS.md
+PROJECT_STATUS.md
