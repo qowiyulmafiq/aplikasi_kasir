@@ -8,11 +8,17 @@ class SystemSettings {
   final String themeMode; // 'system', 'light', 'dark'
   final String posLayoutMode; // 'grid', 'list'
   final bool showItemImage;
+  final bool cashierMode;
+  final bool cashierModePromptDismissed;
+  final bool isLoaded; // not persisted; true once prefs have been read
 
   SystemSettings({
     this.themeMode = 'system',
     this.posLayoutMode = 'grid',
     this.showItemImage = true,
+    this.cashierMode = false,
+    this.cashierModePromptDismissed = false,
+    this.isLoaded = false,
   });
 
   ThemeMode get flutterThemeMode {
@@ -31,11 +37,18 @@ class SystemSettings {
     String? themeMode,
     String? posLayoutMode,
     bool? showItemImage,
+    bool? cashierMode,
+    bool? cashierModePromptDismissed,
+    bool? isLoaded,
   }) {
     return SystemSettings(
       themeMode: themeMode ?? this.themeMode,
       posLayoutMode: posLayoutMode ?? this.posLayoutMode,
       showItemImage: showItemImage ?? this.showItemImage,
+      cashierMode: cashierMode ?? this.cashierMode,
+      cashierModePromptDismissed:
+          cashierModePromptDismissed ?? this.cashierModePromptDismissed,
+      isLoaded: isLoaded ?? this.isLoaded,
     );
   }
 }
@@ -57,7 +70,13 @@ class SystemSettingsNotifier extends _$SystemSettingsNotifier {
         themeMode: _prefs!.getString('themeMode') ?? state.themeMode,
         posLayoutMode: _prefs!.getString('posLayoutMode') ?? state.posLayoutMode,
         showItemImage: _prefs!.getBool('showItemImage') ?? state.showItemImage,
+        cashierMode: _prefs!.getBool('cashierMode') ?? state.cashierMode,
+        cashierModePromptDismissed: _prefs!.getBool('cashierModePromptDismissed') ??
+            state.cashierModePromptDismissed,
+        isLoaded: true,
       );
+    } else {
+      state = state.copyWith(isLoaded: true);
     }
   }
 
@@ -65,11 +84,15 @@ class SystemSettingsNotifier extends _$SystemSettingsNotifier {
     String? themeMode,
     String? posLayoutMode,
     bool? showItemImage,
+    bool? cashierMode,
+    bool? cashierModePromptDismissed,
   }) {
     state = state.copyWith(
       themeMode: themeMode,
       posLayoutMode: posLayoutMode,
       showItemImage: showItemImage,
+      cashierMode: cashierMode,
+      cashierModePromptDismissed: cashierModePromptDismissed,
     );
     _saveToPrefs();
   }
@@ -79,5 +102,7 @@ class SystemSettingsNotifier extends _$SystemSettingsNotifier {
     _prefs!.setString('themeMode', state.themeMode);
     _prefs!.setString('posLayoutMode', state.posLayoutMode);
     _prefs!.setBool('showItemImage', state.showItemImage);
+    _prefs!.setBool('cashierMode', state.cashierMode);
+    _prefs!.setBool('cashierModePromptDismissed', state.cashierModePromptDismissed);
   }
 }

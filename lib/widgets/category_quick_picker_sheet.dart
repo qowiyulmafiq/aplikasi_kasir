@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/category_provider.dart';
 import '../providers/inventory_provider.dart';
 import '../data/database/app_database.dart';
+import 'app_choice_chip.dart';
 import 'custom_text_field.dart';
 
 class CategoryQuickPickerSheet extends ConsumerStatefulWidget {
@@ -72,17 +73,17 @@ class _CategoryQuickPickerSheetState
   }
 
   IconData _getSortIcon(ProductSortOption option) {
+    // Ascending/descending used to share a glyph (and price arrows were
+    // inverted); direction is now encoded by the arrow itself.
     switch (option) {
       case ProductSortOption.namaAsc:
-      case ProductSortOption.namaDesc:
-        return Icons.sort_by_alpha;
       case ProductSortOption.hargaAsc:
-        return Icons.arrow_downward;
-      case ProductSortOption.hargaDesc:
-        return Icons.arrow_upward;
       case ProductSortOption.stokAsc:
+        return Icons.arrow_upward;
+      case ProductSortOption.namaDesc:
+      case ProductSortOption.hargaDesc:
       case ProductSortOption.stokDesc:
-        return Icons.inventory_2_outlined;
+        return Icons.arrow_downward;
     }
   }
 
@@ -352,17 +353,10 @@ class _CategoryQuickPickerSheetState
               runSpacing: 8,
               children: ProductSortOption.values.map((option) {
                 final isSelected = _activeSort == option;
-                return FilterChip(
-                  avatar: Icon(
-                    _getSortIcon(option),
-                    size: 16,
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                  label: Text(option.label),
+                return AppChoiceChip(
+                  icon: _getSortIcon(option),
+                  label: option.label,
                   selected: isSelected,
-                  showCheckmark: false,
                   onSelected: (_) {
                     setState(() {
                       _activeSort = option;
@@ -370,21 +364,6 @@ class _CategoryQuickPickerSheetState
                     widget.onSortSelected(option);
                     Navigator.pop(context);
                   },
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                  selectedColor: theme.colorScheme.primaryContainer,
-                  side: BorderSide(
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected
-                        ? theme.colorScheme.onPrimaryContainer
-                        : theme.colorScheme.onSurface,
-                  ),
                 );
               }).toList(),
             ),
@@ -466,41 +445,16 @@ class _CategoryQuickPickerSheetState
                       children: filteredNames.map((kategoriNama) {
                         final isSelected =
                             widget.selectedCategory == kategoriNama;
-                        return FilterChip(
-                          avatar: Icon(
-                            kategoriNama == 'Semua'
-                                ? Icons.apps
-                                : Icons.label_outline,
-                            size: 16,
-                            color: isSelected
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                          ),
-                          label: Text(kategoriNama),
+                        return AppChoiceChip(
+                          icon: kategoriNama == 'Semua'
+                              ? Icons.apps
+                              : Icons.label_outline,
+                          label: kategoriNama,
                           selected: isSelected,
-                          showCheckmark: false,
                           onSelected: (_) {
                             widget.onCategorySelected(kategoriNama);
                             Navigator.pop(context);
                           },
-                          backgroundColor:
-                              theme.colorScheme.surfaceContainerHighest,
-                          selectedColor: theme.colorScheme.primaryContainer,
-                          side: BorderSide(
-                            color: isSelected
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.outlineVariant,
-                            width: isSelected ? 1.5 : 1,
-                          ),
-                          labelStyle: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? theme.colorScheme.onPrimaryContainer
-                                : theme.colorScheme.onSurface,
-                          ),
                         );
                       }).toList(),
                     ),

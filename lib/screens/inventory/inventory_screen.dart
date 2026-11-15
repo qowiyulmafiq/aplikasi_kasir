@@ -12,6 +12,7 @@ import '../../providers/category_provider.dart';
 import '../../providers/google_sheets_provider.dart';
 import '../../widgets/category_management_sheet.dart';
 import '../../widgets/category_quick_picker_sheet.dart';
+import '../../widgets/app_choice_chip.dart';
 
 class InventoryScreen extends ConsumerWidget {
   const InventoryScreen({super.key});
@@ -137,8 +138,8 @@ class InventoryScreen extends ConsumerWidget {
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(kategori),
+                  child: AppChoiceChip(
+                    label: kategori,
                     selected: selectedCategory == kategori,
                     onSelected: (bool selected) {
                       if (selected) {
@@ -147,18 +148,6 @@ class InventoryScreen extends ConsumerWidget {
                             .state = kategori;
                       }
                     },
-                    selectedColor: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.2),
-                    labelStyle: TextStyle(
-                      color: selectedCategory == kategori
-                          ? Theme.of(context).colorScheme.onPrimaryContainer
-                          : Theme.of(context).colorScheme.onSurface,
-                      fontWeight: selectedCategory == kategori
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
                   ),
                 );
               },

@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/layout/cashier_breakpoints.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/system_settings_provider.dart';
 import '../../providers/operational_settings_provider.dart';
-import '../../data/database/app_database.dart';
+import '../../utils/cart_helpers.dart';
 import '../../utils/currency_formatter.dart';
+import '../../widgets/app_choice_chip.dart';
 import '../../widgets/product_image_widget.dart';
+import '../cashier/cashier_screen.dart';
 import 'widgets/cart_bottom_sheet.dart';
 
 import '../../providers/category_provider.dart';
 import '../../widgets/category_quick_picker_sheet.dart';
 
-class PosScreen extends ConsumerWidget {
+class PosScreen extends ConsumerStatefulWidget {
   const PosScreen({super.key});
+
+  @override
+  ConsumerState<PosScreen> createState() => _PosScreenState();
+}
+
+class _PosScreenState extends ConsumerState<PosScreen> {
+  bool _cashierSuggestionScheduled = false;
 
   void _showCartBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -25,32 +35,74 @@ class PosScreen extends ConsumerWidget {
     );
   }
 
-  void _handleAddItem(BuildContext context, BarangData barang,
-      int quantityInCart, OperationalSettings opSettings, Cart cartNotifier) {
-    if (opSettings.enableStockManagement &&
-        !opSettings.allowZeroStockSales &&
-        (quantityInCart + 1) > barang.stok) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Stok "${barang.nama}" tidak mencukupi! (Sisa: ${barang.stok})'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+  /// Non-blocking, one-shot nudge on wide screens. Never switches mode itself.
+  void _maybeSuggestCashierMode(SystemSettings settings) {
+    if (_cashierSuggestionScheduled ||
+        !settings.isLoaded ||
+        settings.cashierMode ||
+        settings.cashierModePromptDismissed ||
+        !shouldSuggestCashierMode(MediaQuery.sizeOf(context))) {
       return;
     }
-    cartNotifier.addItem(barang);
+    _cashierSuggestionScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final scheme = Theme.of(context).colorScheme;
+      final messenger = ScaffoldMessenger.of(context);
+      final notifier = ref.read(systemSettingsNotifierProvider.notifier);
+
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Row(
+            children: [
+              const Expanded(child: Text('Layar lebar — aktifkan Mode Kasir?')),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: scheme.inversePrimary,
+                ),
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  notifier.updateSettings(cashierMode: true);
+                },
+                child: const Text('Aktifkan'),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: scheme.inversePrimary,
+                ),
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  notifier.updateSettings(cashierModePromptDismissed: true);
+                },
+                child: const Text('Nanti'),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final systemSettings = ref.watch(systemSettingsNotifierProvider);
+
+    // Cashier Mode owns the compact landscape/tablet catalog; portrait still
+    // uses the normal POS until its phase lands.
+    if (systemSettings.cashierMode &&
+        resolveCashierLayout(MediaQuery.sizeOf(context)) !=
+            CashierLayout.compactPortrait) {
+      return const CashierScreen();
+    }
+
     final inventoryState = ref.watch(filteredPosCatalogProvider);
     final searchQuery = ref.watch(posSearchQueryProvider);
     final selectedCategory = ref.watch(posSelectedCategoryProvider);
     final selectedSort = ref.watch(posSortOptionProvider);
 
-    final systemSettings = ref.watch(systemSettingsNotifierProvider);
     final opSettings = ref.watch(operationalSettingsNotifierProvider);
 
     final cart = ref.watch(cartProvider);
@@ -59,6 +111,7 @@ class PosScreen extends ConsumerWidget {
 
     final kategoriOptions = ref.watch(categoryNamesProvider);
 
+    _maybeSuggestCashierMode(systemSettings);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,6 +121,20 @@ class PosScreen extends ConsumerWidget {
         ),
         elevation: 0,
         actions: [
+          IconButton(
+            onPressed: () {
+              ref
+                  .read(systemSettingsNotifierProvider.notifier)
+                  .updateSettings(cashierMode: !systemSettings.cashierMode);
+            },
+            icon: Icon(
+              systemSettings.cashierMode
+                  ? Icons.close_fullscreen
+                  : Icons.point_of_sale,
+            ),
+            tooltip:
+                systemSettings.cashierMode ? 'Keluar Mode Kasir' : 'Mode Kasir',
+          ),
           IconButton(
             onPressed: () => _showCartBottomSheet(context),
             icon: Badge(
@@ -138,8 +205,8 @@ class PosScreen extends ConsumerWidget {
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(kategori),
+                  child: AppChoiceChip(
+                    label: kategori,
                     selected: selectedCategory == kategori,
                     onSelected: (bool selected) {
                       if (selected) {
@@ -147,16 +214,6 @@ class PosScreen extends ConsumerWidget {
                             kategori;
                       }
                     },
-                    selectedColor:
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                    labelStyle: TextStyle(
-                      color: selectedCategory == kategori
-                          ? Theme.of(context).colorScheme.onPrimaryContainer
-                          : Theme.of(context).colorScheme.onSurface,
-                      fontWeight: selectedCategory == kategori
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
                   ),
                 );
               },
@@ -220,8 +277,7 @@ class PosScreen extends ConsumerWidget {
                         ),
                         child: InkWell(
                           onTap: () {
-                            _handleAddItem(context, barang, quantityInCart,
-                                opSettings, cartNotifier);
+                            addBarangToCart(context, ref, barang);
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -346,8 +402,7 @@ class PosScreen extends ConsumerWidget {
                       ),
                       child: InkWell(
                         onTap: () {
-                          _handleAddItem(context, barang, quantityInCart,
-                              opSettings, cartNotifier);
+                          addBarangToCart(context, ref, barang);
                         },
                         child: Stack(
                           children: [

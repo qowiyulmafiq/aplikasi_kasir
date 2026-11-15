@@ -129,6 +129,19 @@ class SystemSettingsScreen extends ConsumerWidget {
                     notifier.updateSettings(showItemImage: value);
                   },
                 ),
+                const Divider(height: 1),
+                SwitchListTile(
+                  title: const Text('Mode Kasir',
+                      style: TextStyle(fontSize: 16)),
+                  subtitle: Text(
+                    'Tata letak kasir layar lebar tanpa navigasi bawah',
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  value: settings.cashierMode,
+                  onChanged: (bool value) {
+                    notifier.updateSettings(cashierMode: value);
+                  },
+                ),
               ],
             ),
           ),
