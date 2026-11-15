@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/layout/cashier_breakpoints.dart';
-import '../../providers/system_settings_provider.dart';
 import 'widgets/cashier_catalog_pane.dart';
+import 'widgets/cashier_order_pane.dart';
 
 /// Cashier Mode entry point.
 ///
-/// Phase 1 only persisted the mode; this shell adds the compact catalog
-/// (grid + header). The order pane/payment sheet from the plan are still
-/// pending, so they are intentionally absent.
+/// The catalog header carries the exit action so the screen has no separate
+/// title bar. Tablet and compact landscape render the catalog and order panes
+/// side by side. Compact portrait keeps the catalog only until the portrait
+/// order sheet from the plan lands.
 class CashierScreen extends ConsumerWidget {
   const CashierScreen({super.key});
 
@@ -18,29 +19,32 @@ class CashierScreen extends ConsumerWidget {
     final layout = resolveCashierLayout(MediaQuery.sizeOf(context));
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 48,
-        title: const Text(
-          'Kasir',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            tooltip: 'Keluar Mode Kasir',
-            icon: const Icon(Icons.close_fullscreen),
-            onPressed: () {
-              ref
-                  .read(systemSettingsNotifierProvider.notifier)
-                  .updateSettings(cashierMode: false);
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: SafeArea(
-        top: false,
-        child: CashierCatalogPane(layout: layout),
+        child: layout == CashierLayout.compactPortrait
+            ? CashierCatalogPane(layout: layout)
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final isTablet = layout == CashierLayout.tablet;
+                  final orderWidth =
+                      (constraints.maxWidth * (isTablet ? 0.36 : 0.40))
+                          .clamp(
+                            CashierBreakpoints.orderPaneMin,
+                            isTablet ? CashierBreakpoints.orderPaneMax : 320.0,
+                          )
+                          .toDouble();
+
+                  return Row(
+                    children: [
+                      Expanded(child: CashierCatalogPane(layout: layout)),
+                      const VerticalDivider(width: 1),
+                      SizedBox(
+                        width: orderWidth,
+                        child: const CashierOrderPane(),
+                      ),
+                    ],
+                  );
+                },
+              ),
       ),
     );
   }

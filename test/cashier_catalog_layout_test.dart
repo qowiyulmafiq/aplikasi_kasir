@@ -25,7 +25,9 @@ class _FakeCategoryList extends CategoryList {
 
 BarangData _barang(int id) => BarangData(
       id: id,
-      nama: 'Barang $id',
+      nama: id == 12
+          ? 'Produk Dengan Nama Sangat Panjang Untuk Uji Overflow'
+          : 'Barang $id',
       kategori: 'Umum',
       harga: 10000 * id,
       stok: 100,
@@ -83,6 +85,7 @@ void main() {
       final headerHeight = tester
           .getSize(find.byKey(const ValueKey('cashierCatalogHeader')))
           .height;
+      expect(headerHeight, lessThanOrEqualTo(56));
       expect(headerHeight, lessThanOrEqualTo(size.height * 0.25));
     });
   }

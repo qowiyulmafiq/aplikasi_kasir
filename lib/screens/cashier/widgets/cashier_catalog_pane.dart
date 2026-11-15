@@ -58,58 +58,92 @@ class CashierCatalogPane extends ConsumerWidget {
       children: [
         Padding(
           key: const ValueKey('cashierCatalogHeader'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: SearchBar(
-                  hintText: 'Cari produk...',
-                  leading: Icon(Icons.search, color: scheme.onSurfaceVariant),
-                  elevation: const WidgetStatePropertyAll(0),
-                  backgroundColor:
-                      WidgetStatePropertyAll(scheme.surfaceContainerHighest),
-                  padding: const WidgetStatePropertyAll(
-                      EdgeInsets.symmetric(horizontal: 12)),
-                  onChanged: (value) {
-                    ref.read(posSearchQueryProvider.notifier).state = value;
+          padding: const EdgeInsets.fromLTRB(4, 4, 8, 4),
+          child: SizedBox(
+            height: 48,
+            child: Row(
+              children: [
+                IconButton(
+                  tooltip: 'Keluar Mode Kasir',
+                  icon: const Icon(Icons.close_fullscreen),
+                  onPressed: () {
+                    ref
+                        .read(systemSettingsNotifierProvider.notifier)
+                        .updateSettings(cashierMode: false);
                   },
                 ),
-              ),
-              const SizedBox(width: 8),
-              IconButton.filledTonal(
-                onPressed: () => _openFilterSheet(context, ref),
-                icon: const Icon(Icons.tune_outlined),
-                tooltip: 'Filter & Urutkan',
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 6,
-                child: SizedBox(
-                  height: 48,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final kategori = categories[index];
-                      return AppChoiceChip(
-                        label: kategori,
-                        selected: selectedCategory == kategori,
-                        onSelected: (selected) {
-                          if (selected) {
-                            ref
-                                .read(posSelectedCategoryProvider.notifier)
-                                .state = kategori;
-                          }
-                        },
-                      );
+                const SizedBox(width: 4),
+                Expanded(
+                  flex: 5,
+                  child: SearchBar(
+                    hintText: 'Cari produk...',
+                    leading: Icon(Icons.search, color: scheme.onSurfaceVariant),
+                    elevation: const WidgetStatePropertyAll(0),
+                    backgroundColor:
+                        WidgetStatePropertyAll(scheme.surfaceContainerHighest),
+                    constraints: const BoxConstraints.tightFor(height: 48),
+                    padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(horizontal: 8)),
+                    onChanged: (value) {
+                      ref.read(posSearchQueryProvider.notifier).state = value;
                     },
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 6),
+                IconButton.filledTonal(
+                  onPressed: () => _openFilterSheet(context, ref),
+                  icon: const Icon(Icons.tune_outlined),
+                  tooltip: 'Filter & Urutkan',
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 6,
+                  child: Stack(
+                    children: [
+                      ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(right: 20),
+                        itemCount: categories.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final kategori = categories[index];
+                          return AppChoiceChip(
+                            label: kategori,
+                            selected: selectedCategory == kategori,
+                            onSelected: (selected) {
+                              if (selected) {
+                                ref
+                                    .read(posSelectedCategoryProvider.notifier)
+                                    .state = kategori;
+                              }
+                            },
+                          );
+                        },
+                      ),
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        right: 0,
+                        width: 20,
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  scheme.surface.withValues(alpha: 0),
+                                  scheme.surface,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const Divider(height: 1),
@@ -183,15 +217,19 @@ class _CashierProductCard extends StatelessWidget {
       elevation: 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
+      color: isSelected ? scheme.primaryContainer : scheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
           color: isSelected ? scheme.primary : scheme.outlineVariant,
-          width: isSelected ? 2 : 1,
+          width: isSelected ? 1.5 : 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
+        overlayColor: WidgetStatePropertyAll(
+          scheme.primary.withValues(alpha: 0.08),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(6),
           child: Row(
@@ -217,8 +255,8 @@ class _CashierProductCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         height: 1.15,
                       ),
                     ),
@@ -228,7 +266,7 @@ class _CashierProductCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 11,
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
@@ -240,8 +278,8 @@ class _CashierProductCard extends StatelessWidget {
                         CurrencyFormatter.formatRupiah(barang.harga),
                         maxLines: 1,
                         style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
                           color: scheme.primary,
                         ),
                       ),
