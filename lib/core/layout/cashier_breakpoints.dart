@@ -15,7 +15,7 @@ class CashierBreakpoints {
   static const double railCompact = 72;
   static const double orderPaneMin = 240;
   static const double orderPaneMax = 420;
-  static const double productCardMaxExtent = 180;
+  static const double productCardMaxExtent = 200;
 }
 
 CashierLayout resolveCashierLayout(Size size) {

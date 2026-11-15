@@ -51,7 +51,7 @@ class CashierCatalogPane extends ConsumerWidget {
 
     final isCompact = layout == CashierLayout.compactLandscape;
     final maxCardExtent =
-        isCompact ? 160.0 : CashierBreakpoints.productCardMaxExtent;
+        isCompact ? 190.0 : CashierBreakpoints.productCardMaxExtent;
     final cardHeight = isCompact ? 96.0 : 110.0;
 
     return Column(
@@ -225,75 +225,81 @@ class _CashierProductCard extends StatelessWidget {
           width: isSelected ? 1.5 : 1,
         ),
       ),
-      child: InkWell(
-        onTap: onTap,
-        overlayColor: WidgetStatePropertyAll(
-          scheme.primary.withValues(alpha: 0.08),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Row(
-            children: [
-              if (showImage) ...[
-                ProductImageWidget(
-                  imagePath: barang.gambarPath,
-                  namaBarang: barang.nama,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  borderRadius: 6,
-                ),
-                const SizedBox(width: 6),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      barang.nama,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                      ),
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: onTap,
+            overlayColor: WidgetStatePropertyAll(
+              scheme.primary.withValues(alpha: 0.08),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Row(
+                children: [
+                  if (showImage) ...[
+                    ProductImageWidget(
+                      imagePath: barang.gambarPath,
+                      namaBarang: barang.nama,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      borderRadius: 6,
                     ),
-                    const SizedBox(height: 1),
-                    Text(
-                      barang.kategori,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        CurrencyFormatter.formatRupiah(barang.harga),
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: scheme.primary,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(width: 6),
                   ],
-                ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          barang.nama,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            height: 1.15,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          barang.kategori,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            CurrencyFormatter.formatRupiah(barang.harga),
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: scheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              if (quantityInCart > 0) ...[
-                const SizedBox(width: 4),
-                _CartQtyBadge(quantity: quantityInCart),
-              ],
-            ],
+            ),
           ),
-        ),
+          if (quantityInCart > 0)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: _CartQtyBadge(quantity: quantityInCart),
+            ),
+        ],
       ),
     );
   }

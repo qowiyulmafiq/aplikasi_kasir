@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/layout/cashier_orientation.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'providers/system_settings_provider.dart';
@@ -22,6 +23,11 @@ class PosApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: settings.flutterThemeMode,
       routerConfig: appRouter,
+      builder: (context, child) => CashierOrientationController(
+        isPhone: MediaQuery.sizeOf(context).shortestSide < 600,
+        cashierMode: settings.cashierMode,
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

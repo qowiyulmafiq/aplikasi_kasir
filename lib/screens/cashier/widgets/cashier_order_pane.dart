@@ -172,12 +172,12 @@ class CashierOrderPane extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: FittedBox(
+                        child: const FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            'Bayar • ${CurrencyFormatter.formatRupiah(grandTotal)}',
+                            'Bayar Sekarang',
                             maxLines: 1,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -352,9 +352,9 @@ class _StepperButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: borderRadius,
       child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Icon(icon, size: 18, color: color),
+        width: 36,
+        height: 36,
+        child: Icon(icon, size: 17, color: color),
       ),
     );
   }
