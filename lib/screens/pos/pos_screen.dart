@@ -27,12 +27,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   bool _cashierSuggestionScheduled = false;
 
   void _showCartBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const CartBottomSheet(),
-    );
+    CartBottomSheet.show(context);
   }
 
   /// Non-blocking, one-shot nudge on wide screens. Never switches mode itself.
@@ -160,9 +155,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                     leading: Icon(Icons.search,
                         color: Theme.of(context).colorScheme.onSurfaceVariant),
                     elevation: const WidgetStatePropertyAll(0),
-                    backgroundColor: WidgetStatePropertyAll(Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest),
+                    backgroundColor: WidgetStatePropertyAll(
+                        Theme.of(context).colorScheme.surfaceContainerHighest),
                     padding: const WidgetStatePropertyAll(
                         EdgeInsets.symmetric(horizontal: 16.0)),
                     onChanged: (value) {
@@ -246,7 +240,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                           searchQuery.isNotEmpty || selectedCategory != 'Semua'
                               ? 'Produk tidak ditemukan.'
                               : 'Belum ada produk di katalog.',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -257,11 +254,15 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   return ListView.separated(
                     padding: const EdgeInsets.all(16.0),
                     itemCount: daftarBarang.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final barang = daftarBarang[index];
-                      final cartItemIndex = cart.indexWhere((item) => item.barang.id == barang.id);
-                      final quantityInCart = cartItemIndex >= 0 ? cart[cartItemIndex].kuantitas : 0;
+                      final cartItemIndex = cart
+                          .indexWhere((item) => item.barang.id == barang.id);
+                      final quantityInCart = cartItemIndex >= 0
+                          ? cart[cartItemIndex].kuantitas
+                          : 0;
 
                       return Card(
                         elevation: 1,
@@ -302,7 +303,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                   const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         barang.nama,
@@ -318,7 +320,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                         barang.kategori,
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -330,20 +334,27 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      CurrencyFormatter.formatRupiah(barang.harga),
+                                      CurrencyFormatter.formatRupiah(
+                                          barang.harga),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 13,
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     if (quantityInCart > 0)
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primary,
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: Text(
                                           '$quantityInCart',
@@ -358,7 +369,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                       Icon(
                                         Icons.add_shopping_cart,
                                         size: 18,
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                   ],
                                 ),
@@ -443,7 +456,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                           barang.kategori,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -459,13 +474,17 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w900,
                                                 fontSize: 13,
-                                                color: Theme.of(context).colorScheme.primary,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                               ),
                                             ),
                                             Icon(
                                               Icons.add_shopping_cart,
                                               size: 18,
-                                              color: Theme.of(context).colorScheme.primary,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
                                             ),
                                           ],
                                         ),
@@ -483,7 +502,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -514,7 +534,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 color: Theme.of(context).colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.08),
+                    color:
+                        Theme.of(context).shadowColor.withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),
@@ -533,7 +554,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                             '$totalItemsInCart Item di Keranjang',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                           Text(
@@ -552,7 +575,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       onPressed: () => _showCartBottomSheet(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(

@@ -60,13 +60,14 @@ class CustomTextField extends StatelessWidget {
       children: [
         if (label != null && label!.isNotEmpty) ...[
           Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                label!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
+              Flexible(
+                child: Text(
+                  label!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
               ),
               if (isRequired)

@@ -18,13 +18,7 @@ class CashierOrderPane extends ConsumerWidget {
   const CashierOrderPane({super.key});
 
   void _showPaymentSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const CartBottomSheet(),
-    );
+    CartBottomSheet.show(context);
   }
 
   @override
